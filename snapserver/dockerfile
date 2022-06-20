@@ -1,0 +1,18 @@
+FROM gtstef/snapbase:0.27 as base
+FROM gtstef/librespot:0.4.1 as librespot
+
+FROM ubuntu:21.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install \
+    libavahi-client-dev avahi-daemon mpd \
+    curl -y --no-install-recommends
+
+WORKDIR /opt
+COPY src .
+COPY --from=librespot /usr/local/bin/librespot /usr/local/bin/
+COPY --from=base /opt/snapcast/server/snapserver /usr/local/bin/
+RUN chmod 777 -R /opt/mpd
+RUN chmod +x run.sh
+
+ENTRYPOINT ["./run.sh"]

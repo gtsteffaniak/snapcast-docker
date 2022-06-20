@@ -1,0 +1,64 @@
+version: '3.3'
+services:
+    server:
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+            - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
+        network_mode: host
+        environment:
+            - chunk_ms=30
+            - buffer=1000
+        image: 'gtstef/snapserver:0.3.2'
+        restart: unless-stopped
+    cleanup_agent:
+        depends_on: ["server"]
+        network_mode: host
+        image: 'gtstef/snapserver-cleanup-agent'
+        restart: unless-stopped
+    client-kitchen:
+        depends_on: ["server"]
+        hostname: kitchen
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - DEVICE="MAC"
+            - instance=10
+            - server=gworker
+            - ENABLE_SECONDARY_STREAM=false
+            - USE_STEREO=false
+        image: 'gtstef/snapclient:0.2.7'
+    client-bedroom:
+        depends_on: ["server"]
+        hostname: bedroom
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - DEVICE="MAC"
+            - instance=20
+            - server=gworker
+            - ENABLE_SECONDARY_STREAM=false
+            - USE_STEREO=false
+        image: 'gtstef/snapclient:0.2.7'
+    client-tv:
+        depends_on: ["server"]
+        hostname: tv
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - instance=5
+            - server=gworker
+            - ENABLE_SECONDARY_STREAM=true
+            - USE_STEREO=true
+        image: 'gtstef/snapclient:0.2.7'

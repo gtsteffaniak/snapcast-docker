@@ -1,0 +1,48 @@
+FROM debian:buster-slim
+# To avoid problems with Dialog and curses wizards
+ENV DEBIAN_FRONTEND noninteractive
+
+# Define a user under which the pulseaudio server will be running
+ENV USER pulseaudio
+ENV UID 1000
+ENV GROUPS audio
+ENV HOME /home/$USER
+
+RUN apt-get update && apt-get install -y procps netcat curl \
+    pulseaudio pulseaudio-module-bluetooth \
+    libavahi-client-dev alsa-utils libbluetooth3 \
+    expect sudo && rm -rf /var/lib/apt/lists && \
+    apt remove policykit-1 *mesa* libllvm7 libperl5.28 -y
+
+COPY [ "src/default.pa", "src/client.conf", "src/daemon.conf", \
+        "/etc/pulse/" ]
+
+RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER \
+    && usermod -aG $GROUPS $USER \
+    && chmod 0655 -- /etc/pulse/* \
+    && mkdir -p $HOME/.config/pulse \
+    && chown -Rh $USER:$USER -- $HOME \
+    && echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >> /etc/passwd \
+    && echo "$USER:x:${uid}:" >> /etc/group \
+    && mkdir -p /etc/sudoers.d \
+    && echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER \
+    && chmod 0440 /etc/sudoers.d/$USER \
+    && chsh -s /bin/bash $USER 
+
+COPY [ "src/main.conf", "src/audio.conf", "src/input.conf", "src/network.conf", \
+        "/etc/bluetooth/" ]
+WORKDIR $HOME
+COPY deps-armv7/ .
+RUN dpkg -i --force-all snapclient_*.deb
+RUN apt-get -f install -y
+RUN sudo apt install ./bluealsa_0.13_armhf.deb -y
+RUN sudo apt autoremove -y && apt clean all -y
+RUN rm -f bluealsa_0.13_armhf.deb
+
+USER $USER
+VOLUME [ "/tmp", "$HOME/.config/pulse" ]
+RUN cd /home/pulseaudio
+COPY [ "src/snaprun.sh", "src/*.wav", "src/*asoundrc", "./"]
+RUN sudo chmod +x snaprun.sh
+
+ENTRYPOINT ["./snaprun.sh"]

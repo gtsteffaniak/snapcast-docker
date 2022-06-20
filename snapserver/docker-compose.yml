@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+    main:
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+            - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
+        network_mode: host
+        environment:
+            - chunk_ms=30
+            - buffer=1000
+        image: 'gtstef/snapserver:0.3.3'
+        restart: unless-stopped
+    cleanup_agent:
+        depends_on: ["main"]
+        network_mode: host
+        image: 'gtstef/snapserver-cleanup-agent'
+        restart: unless-stopped

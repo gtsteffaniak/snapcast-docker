@@ -1,0 +1,58 @@
+FROM gtstef/snapbase:0.27 as base
+FROM ubuntu:21.04
+
+# To avoid problems with Dialog and curses wizards
+ENV DEBIAN_FRONTEND noninteractive
+RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+
+# Define a user under which the pulseaudio server will be running
+ENV USER pulseaudio
+ENV UID 1000
+ENV GROUPS audio
+ENV HOME /home/$USER
+RUN apt update && apt install -y procps netcat curl \
+    pulseaudio pulseaudio-module-bluetooth bluez alsa-utils \
+    libavahi-client-dev libbluetooth3 expect sudo \
+    && apt clean && rm -rf /var/lib/apt/lists
+
+RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER \
+    && usermod -aG $GROUPS $USER \
+    && chmod 0655 -- /etc/pulse/* \
+    && mkdir -p $HOME/.config/pulse \
+    && chown -Rh $USER:$USER -- $HOME \
+    && echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >> /etc/passwd \
+    && echo "$USER:x:${uid}:" >> /etc/group \
+    && mkdir -p /etc/sudoers.d \
+    && echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER \
+    && chmod 0440 /etc/sudoers.d/$USER \
+    && chsh -s /bin/bash $USER
+USER $USER
+WORKDIR $HOME
+COPY --from=base --chown=root:pulseaudio /opt/snapcast/client/snapclient /usr/bin/
+#COPY --from=base /usr/lib/aarch64-linux-gnu/pulseaudio /usr/lib/pulse-14.2/modules
+#COPY --from=base /usr/lib/pulse-15.0+dfsg1/modules/*blue* /opt/
+
+# copy pulseaudio
+COPY --from=base --chown=root:pulseaudio /usr/local/bin/pulseaudio /usr/local/bin/
+COPY --from=base --chown=root:pulseaudio /usr/local/bin/pa* /usr/local/bin/
+COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/libpulse* /usr/local/lib/aarch64-linux-gnu/
+COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pkgconfig/ /usr/local/lib/aarch64-linux-gnu/pkgconfig/
+COPY --from=base --chown=root:pulseaudio /usr/local/etc/pulse/ /etc/pulse/
+COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pulseaudio/ /usr/local/lib/aarch64-linux-gnu/pulseaudio/
+
+#RUN apt-get -f install -y
+#RUN sudo apt autoremove -y && apt clean all -y
+#RUN rm -rf *.deb
+
+RUN cd /home/pulseaudio
+
+COPY [ "src/.asoundrc*", "src/*.wav", "./" ]
+COPY [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
+COPY [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
+
+COPY src/snaprun.sh .
+RUN sudo chmod +x snaprun.sh
+RUN sudo chown pulseaudio:pulseaudio -R .
+RUN sudo chown pulseaudio:pulseaudio /etc/pulse/daemon.conf
+
+ENTRYPOINT ["./snaprun.sh"]
