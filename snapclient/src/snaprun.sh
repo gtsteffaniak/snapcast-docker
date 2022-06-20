@@ -1,17 +1,17 @@
 #!/bin/bash
-VOLUME="60%" # intial bell volume
-LATENCY="175" # default bluetooth latency/buffer ms !important 
+VOLUME="60%"          # intial bell volume
+LATENCY="175"         # default bluetooth latency/buffer ms !important
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 ARGS=""
 echo "stereo setting: $USE_STEREO"
-if [  "$USE_STEREO" == "false" ];then
-	printf "default-sample-channels=1\n" >> /etc/pulse/daemon.conf
+if [ "$USE_STEREO" == "false" ]; then
+	printf "default-sample-channels=1\n" >>/etc/pulse/daemon.conf
 fi
 
 function monitor {
 	echo "[INFO] monitoring for issues"
 	sleep 10
-	while true;do
+	while true; do
 		#check bluetooth device is connected
 		getSink
 		sleep 1
@@ -21,22 +21,21 @@ function monitor {
 			exit
 		fi
 		# check PID process is not stuck retransmitting (causing high CPU)
-		PID=$(pgrep -f snapclient|head -n 1)
-		if [ -z "$PID" ];then
+		PID=$(pgrep -f snapclient | head -n 1)
+		if [ -z "$PID" ]; then
 			echo "[WARN] Monitor found snapclient was not running... starting"
 			pulseaudio --start
 			sleep 1
 			start_cmd
 			sleep 10
 			PID=$(pgrep -f snapclient)
-			if [ -z "$PID" ];then
+			if [ -z "$PID" ]; then
 				echo "[FATAL] Monitor can't get snapclient to start... exiting container"
 				exit
 			fi
 		fi
-		cpu_usage=$(ps -p "$PID" -o %cpu|tail -n 1|awk -F '.' '{print $1}')
-		if [[ "$cpu_usage" -gt 80 && "$last_check" -gt 80 ]]
-		then
+		cpu_usage=$(ps -p "$PID" -o %cpu | tail -n 1 | awk -F '.' '{print $1}')
+		if [[ "$cpu_usage" -gt 80 && "$last_check" -gt 80 ]]; then
 			echo "[WARN] CPU usage : $cpu_usage"
 			echo "[FATAL] High CPU usage detected.. restarting snapclient"
 			pkill -9 $(pgrep -f snapclient)
@@ -44,18 +43,18 @@ function monitor {
 		fi
 		last_check="$cpu_usage"
 		sleep 10
-		nc -vz "$server" 1704 > /dev/null 2>&1
+		nc -vz "$server" 1704 >/dev/null 2>&1
 		serverconnection=$?
-		if [[ "$serverconnection" -ne 0 ]];then
+		if [[ "$serverconnection" -ne 0 ]]; then
 			echo "[WARN] Host $server cannot be connected or resolved."
 		fi
 	done
 }
-function getSink(){
-	if [ -z "$DEVICE" ];then
-		SINK=$(pactl list short sinks|grep -i alsa|head -n 1|awk '{print $1}')
+function getSink() {
+	if [ -z "$DEVICE" ]; then
+		SINK=$(pactl list short sinks | grep -i alsa | head -n 1 | awk '{print $1}')
 	else
-		SINK=$(pactl list short sinks|grep bluez_sink|head -n 1|awk '{print $1}')
+		SINK=$(pactl list short sinks | grep bluez_sink | head -n 1 | awk '{print $1}')
 		CARD=$(pactl list cards short | awk '/bluez/{print $2}')
 
 	fi
@@ -65,47 +64,37 @@ function getSink(){
 function start_cmd() {
 	amixer sset "$defaultDevice" 100%
 	getSink
-    echo "[INFO] launch command: snapclient $ARGS"
+	echo "[INFO] launch command: snapclient $ARGS"
 	echo "[INFO] launch volume : $VOLUME"
 	echo "[INFO] launch sink: $SINK"
-    snapclient $ARGS
+	snapclient $ARGS
 }
-function start_voice_cmd() {
-	amixer sset "$defaultDevice" 100%
-	getSink
-    echo "[INFO] launch command: snapclient $ARGS"
-	echo "[INFO] launch volume : $VOLUME"
-	echo "[INFO] launch sink: $SINK"
-	echo "[INFO] launch with voice: true"
-	snapclient $ARGS -i "$instance$instance" 
-}
-function noBluetooth(){
+
+function noBluetooth() {
 	pulseaudio -k
 	sleep 1
 	pactl load-module module-alsa-sink
 	pactl load-module module-alsa-card
-	printf "default-fragments = 3\n" >> /etc/pulse/daemon.conf
-	printf "default-fragment-size-msec = 8\n" >> /etc/pulse/daemon.conf
+	printf "default-fragments = 3\n" >>/etc/pulse/daemon.conf
+	printf "default-fragment-size-msec = 8\n" >>/etc/pulse/daemon.conf
 	pulseaudio --start
 	VOLUME="125%" # default volume boost
 	getSink
-	mv -f .asoundrc.aux .asoundrc	
-	start_voice_cmd &
+	mv -f .asoundrc.aux .asoundrc
 	start_cmd
 	exit
 }
 
-function withBluetooth(){
+function withBluetooth() {
 	pulseaudio --k
 	# start with bluetooth device
 	# Latency value tries to sync with sound, but may need to be higher or lower
 	ARGS="$ARGS --latency=$LATENCY --logsink null"
 	#ARGS="$ARGS -s 3"
 
-
-    printf "default-fragments = 10\n" >> /etc/pulse/daemon.conf
-	printf "default-fragment-size-msec = 25\n" >> /etc/pulse/daemon.conf
-	printf "high-priority = yes\n" >> /etc/pulse/daemon.conf
+	printf "default-fragments = 10\n" >>/etc/pulse/daemon.conf
+	printf "default-fragment-size-msec = 25\n" >>/etc/pulse/daemon.conf
+	printf "high-priority = yes\n" >>/etc/pulse/daemon.conf
 	#printf "realtime-scheduling = yes\n" >> /etc/pulse/daemon.conf
 	#printf "realtime-priority = 1\n" >> /etc/pulse/daemon.conf
 	pulseaudio --start
@@ -118,7 +107,7 @@ function withBluetooth(){
 	################################################
 	echo "[INFO] Loading required modules..."
 	pactl load-module module-bluetooth-policy
-	pactl load-module module-bluetooth-discover 
+	pactl load-module module-bluetooth-discover
 	pactl unload-module module-alsa-card
 	pactl unload-module module-alsa-sink
 	sudo expect -c '
@@ -140,7 +129,7 @@ function withBluetooth(){
 	send "quit\r"
 	expect eof
 	'
-	
+
 	sleep 1
 	sed -i 's/device ".*/device "'$DEVICE'"/g' .asoundrc
 
@@ -160,22 +149,22 @@ function withBluetooth(){
 
 }
 
-function init(){
+function init() {
 	# sound ready on default device intro chime
 	pulseaudio --start
 	sleep 1
 	pactl load-module module-alsa-card
 	pactl load-module module-alsa-sink
 	# set initial volume
-	SINK=$(pactl list short sinks|grep -i alsa|head -n 1|awk '{print $1}')
-	defaultDevice=$(amixer scontents|grep Simple|awk -F "\'" '{print $2}'|head -n 1)
+	SINK=$(pactl list short sinks | grep -i alsa | head -n 1 | awk '{print $1}')
+	defaultDevice=$(amixer scontents | grep Simple | awk -F "\'" '{print $2}' | head -n 1)
 	amixer sset "$defaultDevice" "$VOLUME"
 	aplay long_bel.wav
-	if [ ! -z "$instance" ];then
+	if [ ! -z "$instance" ]; then
 		ARGS="$ARGS -i $instance"
 		echo "[INFO] assigned instance $instance"
 	fi
-	if [ ! -z "$server" ];then
+	if [ ! -z "$server" ]; then
 		ARGS="$ARGS -h $server"
 		echo "[INFO] assigned server $server"
 	fi
@@ -183,7 +172,7 @@ function init(){
 
 init
 # skip bluetooth if not specified
-if [ -z "$DEVICE" ];then
+if [ -z "$DEVICE" ]; then
 	noBluetooth
 else
 	withBluetooth

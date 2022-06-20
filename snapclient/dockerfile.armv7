@@ -11,26 +11,26 @@ ENV HOME /home/$USER
 RUN apt-get update && apt-get install -y procps netcat curl \
     pulseaudio pulseaudio-module-bluetooth \
     libavahi-client-dev alsa-utils libbluetooth3 \
-    expect sudo && rm -rf /var/lib/apt/lists && \
+    expect sudo && rm -rf /var/lib/apt/lists &&
     apt remove policykit-1 *mesa* libllvm7 libperl5.28 -y
 
 COPY [ "src/default.pa", "src/client.conf", "src/daemon.conf", \
-        "/etc/pulse/" ]
+    "/etc/pulse/" ]
 
-RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER \
-    && usermod -aG $GROUPS $USER \
-    && chmod 0655 -- /etc/pulse/* \
-    && mkdir -p $HOME/.config/pulse \
-    && chown -Rh $USER:$USER -- $HOME \
-    && echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >> /etc/passwd \
-    && echo "$USER:x:${uid}:" >> /etc/group \
-    && mkdir -p /etc/sudoers.d \
-    && echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER \
-    && chmod 0440 /etc/sudoers.d/$USER \
-    && chsh -s /bin/bash $USER 
+RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER &&
+    usermod -aG $GROUPS $USER &&
+    chmod 0655 -- /etc/pulse/* &&
+    mkdir -p $HOME/.config/pulse &&
+    chown -Rh $USER:$USER -- $HOME &&
+    echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd &&
+    echo "$USER:x:${uid}:" >>/etc/group &&
+    mkdir -p /etc/sudoers.d &&
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER &&
+    chmod 0440 /etc/sudoers.d/$USER &&
+    chsh -s /bin/bash $USER
 
 COPY [ "src/main.conf", "src/audio.conf", "src/input.conf", "src/network.conf", \
-        "/etc/bluetooth/" ]
+    "/etc/bluetooth/" ]
 WORKDIR $HOME
 COPY deps-armv7/ .
 RUN dpkg -i --force-all snapclient_*.deb
