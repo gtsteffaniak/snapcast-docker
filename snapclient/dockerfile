@@ -12,19 +12,19 @@ ENV GROUPS audio
 ENV HOME /home/$USER
 RUN apt update && apt install -y procps netcat curl \
     pulseaudio pulseaudio-module-bluetooth bluez alsa-utils \
-    libavahi-client-dev libbluetooth3 expect sudo &&
+    libavahi-client-dev libbluetooth3 expect sudo && \
     apt clean && rm -rf /var/lib/apt/lists
 
-RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER &&
-    usermod -aG $GROUPS $USER &&
-    chmod 0655 -- /etc/pulse/* &&
-    mkdir -p $HOME/.config/pulse &&
-    chown -Rh $USER:$USER -- $HOME &&
-    echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd &&
-    echo "$USER:x:${uid}:" >>/etc/group &&
-    mkdir -p /etc/sudoers.d &&
-    echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER &&
-    chmod 0440 /etc/sudoers.d/$USER &&
+RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
+    usermod -aG $GROUPS $USER && \
+    chmod 0655 -- /etc/pulse/* && \
+    mkdir -p $HOME/.config/pulse && \
+    chown -Rh $USER:$USER -- $HOME && \
+    echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd && \
+    echo "$USER:x:${uid}:" >>/etc/group && \
+    mkdir -p /etc/sudoers.d && \
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
+    chmod 0440 /etc/sudoers.d/$USER && \
     chsh -s /bin/bash $USER
 USER $USER
 WORKDIR $HOME
