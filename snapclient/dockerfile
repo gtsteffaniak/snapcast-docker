@@ -28,17 +28,18 @@ RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
     chsh -s /bin/bash $USER
 USER $USER
 WORKDIR $HOME
-COPY --from=base --chown=root:pulseaudio /opt/snapcast/client/snapclient /usr/bin/
+#COPY --from=base --chown=root:pulseaudio /opt/snapcast/client/snapclient /usr/bin/
 #COPY --from=base /usr/lib/aarch64-linux-gnu/pulseaudio /usr/lib/pulse-14.2/modules
 #COPY --from=base /usr/lib/pulse-15.0+dfsg1/modules/*blue* /opt/
 
+
 # copy pulseaudio
-COPY --from=base --chown=root:pulseaudio /usr/local/bin/pulseaudio /usr/local/bin/
-COPY --from=base --chown=root:pulseaudio /usr/local/bin/pa* /usr/local/bin/
-COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/libpulse* /usr/local/lib/aarch64-linux-gnu/
-COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pkgconfig/ /usr/local/lib/aarch64-linux-gnu/pkgconfig/
-COPY --from=base --chown=root:pulseaudio /usr/local/etc/pulse/ /etc/pulse/
-COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pulseaudio/ /usr/local/lib/aarch64-linux-gnu/pulseaudio/
+#COPY --from=base --chown=root:pulseaudio /usr/local/bin/pulseaudio /usr/local/bin/
+#COPY --from=base --chown=root:pulseaudio /usr/local/bin/pa* /usr/local/bin/
+#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/libpulse* /usr/local/lib/aarch64-linux-gnu/
+#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pkgconfig/ /usr/local/lib/aarch64-linux-gnu/pkgconfig/
+#COPY --from=base --chown=root:pulseaudio /usr/local/etc/pulse/ /etc/pulse/
+#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pulseaudio/ /usr/local/lib/aarch64-linux-gnu/pulseaudio/
 
 #RUN apt-get -f install -y
 #RUN sudo apt autoremove -y && apt clean all -y
