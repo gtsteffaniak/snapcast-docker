@@ -13,5 +13,7 @@ services:
     cleanup_agent:
         depends_on: ["main"]
         network_mode: host
+        environment:
+            - server=localhost
         image: 'gtstef/snapserver-cleanup-agent'
         restart: unless-stopped
