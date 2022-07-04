@@ -9,7 +9,10 @@ services:
             - chunk_ms=30
             - buffer=1000
             - host=gworker # replace with host
-        image: 'gtstef/snapserver:0.3.3'
+        #image: 'gtstef/snapserver:0.3.3' # optional - build locally instead
+        build:
+            context: ./snapserver
+            dockerfile: dockerfile
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
@@ -23,7 +26,10 @@ services:
         environment:
             - host=gworker
         network_mode: host
-        image: 'gtstef/snapserver-cleanup-agent'
+        #image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
+        build:
+            context: ./snapserver
+            dockerfile: dockerfile.cleanup
         restart: unless-stopped
 
 # First bluetooth device - depnds on server
@@ -49,7 +55,10 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient:0.3.0'
+        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
+        build:
+            context: ./snapclient
+            dockerfile: dockerfile
 
 # Second bluetooth device - depnds on first bluetooth device!
 # if you try to pair two bluetooth devices at the same time... you get failure.
@@ -75,7 +84,10 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient:0.3.0'
+        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
+        build:
+            context: ./snapclient
+            dockerfile: dockerfile
 
     tv:
         depends_on:
@@ -98,4 +110,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
             retries: 1
-        image: 'gtstef/snapclient:0.3.0'
+        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
+        build:
+            context: ./snapclient
+            dockerfile: dockerfile

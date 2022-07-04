@@ -19,7 +19,7 @@ RUN apt update && apt install -y curl \
         python3-wheel ninja-build cmake libspeexdsp-dev
 
 ## pulseaudio requirements
-RUN apt update && apt install -y curl xmltoman libudev-dev libevdev-dev libsystemd-dev libglib2.0-dev \ 
+RUN apt update && apt install -y curl xmltoman libudev-dev libevdev-dev libsystemd-dev libglib2.0-dev \
 libjson-glib-dev libunistring-dev check valgrind swig &&
         apt-get clean && rm -fR /var/lib/apt/lists
 WORKDIR /opt/
@@ -36,4 +36,4 @@ RUN ninja -C build install
 WORKDIR /opt
 RUN git clone https://github.com/badaix/snapcast.git
 WORKDIR /opt/snapcast
-RUN make -j1 client server
+RUN make -j$(nproc) client server
