@@ -1,23 +1,38 @@
-version: '3.3'
+version: '2.2'
 services:
+
     server:
         volumes:
-            - '/var/run/dbus:/var/run/dbus'
             - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
-        network_mode: host
+        network_mode: host # easier than doing ports
         environment:
             - chunk_ms=30
             - buffer=1000
-        image: 'gtstef/snapserver:0.3.2'
+            - host=gworker # replace with host
+        image: 'gtstef/snapserver:0.3.3'
         restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "-f", "localhost:1780"]
+            timeout: 5s
+            retries: 3
+
     cleanup_agent:
-        depends_on: ["server"]
+        depends_on:
+            server:
+                condition: service_healthy
+        environment:
+            - host=gworker
         network_mode: host
         image: 'gtstef/snapserver-cleanup-agent'
         restart: unless-stopped
+
+# First bluetooth device - depnds on server
     client-kitchen:
-        depends_on: ["server"]
+        depends_on:
+            server:
+                condition: service_healthy
         hostname: kitchen
+        container_name: kitchen
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -25,15 +40,25 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - DEVICE="MAC"
-            - instance=10
+            - DEVICE="A4:05:0A:19:90:16"
+            - host=gworker
+            - instance=1
             - server=gworker
-            - ENABLE_SECONDARY_STREAM=false
             - USE_STEREO=false
-        image: 'gtstef/snapclient:0.2.7'
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 10s
+            retries: 3
+        image: 'gtstef/snapclient:0.3.0'
+
+# Second bluetooth device - depnds on first bluetooth device!
+# if you try to pair two bluetooth devices at the same time... you get failure.
     client-bedroom:
-        depends_on: ["server"]
+        depends_on:
+            client-kitchen:
+                condition: service_healthy
         hostname: bedroom
+        container_name: bedroom
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -41,15 +66,23 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - DEVICE="MAC"
-            - instance=20
-            - server=gworker
-            - ENABLE_SECONDARY_STREAM=false
-            - USE_STEREO=false
-        image: 'gtstef/snapclient:0.2.7'
-    client-tv:
-        depends_on: ["server"]
+            - DEVICE="F5:63:4B:0F:D4:8F"
+            - host=gworker # enter your own hostname
+            - instance=3  # make sure unique number - no other clients have!
+            - server=gworker # enter your own hostname
+            - USE_STEREO=false # if you want mono bluetooth
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 10s
+            retries: 3
+        image: 'gtstef/snapclient:0.3.0'
+
+    tv:
+        depends_on:
+            server:
+                condition: service_healthy
         hostname: tv
+        container_name: tv
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -57,8 +90,12 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - instance=5
+            - host=gworker
+            - instance=2
             - server=gworker
-            - ENABLE_SECONDARY_STREAM=true
-            - USE_STEREO=true
-        image: 'gtstef/snapclient:0.2.7'
+            - USE_STEREO=false
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 5s
+            retries: 1
+        image: 'gtstef/snapclient:0.3.0'
