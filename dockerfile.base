@@ -20,14 +20,14 @@ RUN apt update && apt install -y curl \
 
 ## pulseaudio requirements
 RUN apt update && apt install -y curl xmltoman libudev-dev libevdev-dev libsystemd-dev libglib2.0-dev \
-libjson-glib-dev libunistring-dev check valgrind swig &&
+        libjson-glib-dev libunistring-dev check valgrind swig && \
         apt-get clean && rm -fR /var/lib/apt/lists
 WORKDIR /opt/
 RUN pip3 install meson
 #RUN git clone https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git
 RUN curl "https://freedesktop.org/software/pulseaudio/releases/pulseaudio-16.0.tar.xz" -o pulseaudio.tar.xz
-RUN tar -xf pulseaudio.tar.xz &&
-        rm -f pulseaudio.tar.xz &&
+RUN tar -xf pulseaudio.tar.xz && \
+        rm -f pulseaudio.tar.xz && \
         mv pulseaudio* pulseaudio
 WORKDIR /opt/pulseaudio
 RUN meson build
