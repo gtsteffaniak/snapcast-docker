@@ -61,7 +61,8 @@ services:
             dockerfile: dockerfile
 
 # Second bluetooth device - depnds on first bluetooth device!
-# if you try to pair two bluetooth devices at the same time... you get failure.
+# Two bluetooth devices on one host requires BT 5.0 host module.
+# Only certain devices support this, eg raspberry pi 4
     client-bedroom:
         depends_on:
             client-kitchen:
