@@ -1,7 +1,7 @@
 version: '2.2'
 services:
-
     server:
+        container_name: snapcast_server_main
         volumes:
             - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
         network_mode: host # easier than doing ports
@@ -19,27 +19,26 @@ services:
             test: ["CMD", "curl", "-f", "localhost:1780"]
             timeout: 5s
             retries: 3
-
     cleanup_agent:
+        container_name: snapcast_server_cleanup_agent
         depends_on:
             server:
                 condition: service_healthy
         environment:
             - host=gworker
         network_mode: host
-        #image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
+        image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
         #build:
         #    context: ./snapserver
         #    dockerfile: dockerfile.cleanup
         restart: unless-stopped
-
 # First bluetooth device - depnds on server
     client-kitchen:
         depends_on:
             server:
                 condition: service_healthy
         hostname: kitchen
-        container_name: kitchen
+        container_name: snapcast_client_kitchen-bt
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -61,7 +60,6 @@ services:
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
-
 # Second bluetooth device - depnds on first bluetooth device!
 # Two bluetooth devices on one host requires BT 5.0 host module.
 # Only certain devices support this, eg raspberry pi 4
@@ -70,7 +68,7 @@ services:
             client-kitchen:
                 condition: service_healthy
         hostname: bedroom
-        container_name: bedroom
+        container_name: snapcast_client_bedroom-bt
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -92,13 +90,12 @@ services:
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
-
     tv:
         depends_on:
             server:
                 condition: service_healthy
         hostname: tv
-        container_name: tv
+        container_name: snapcast_client_tv
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
