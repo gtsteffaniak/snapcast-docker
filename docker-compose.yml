@@ -60,7 +60,36 @@ services:
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
-
+# Second bluetooth device - depnds on first bluetooth device!
+# Two bluetooth devices on one host requires BT 5.0 host module.
+# Only certain devices support this, eg raspberry pi 4
+    client-bedroom:
+        depends_on:
+            client-kitchen:
+                condition: service_healthy
+        hostname: bedroom
+        container_name: snapcast_client_bedroom-bt
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - DEVICE="F5:63:4B:0F:D4:8F"
+            - host=gworker # enter your own hostname
+            - instance=3  # make sure unique number - no other clients have!
+            - server=gworker # enter your own hostname
+            - USE_STEREO=false # if you want mono bluetooth
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 10s
+            retries: 3
+        image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
     tv:
         depends_on:
             server:
