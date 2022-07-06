@@ -1,0 +1,77 @@
+# this is example docker-compose for client only
+# snapcast server must be already running seperately
+
+version: '2.2'
+services:
+    example-speakers:
+        hostname: example-speakers
+        container_name: snapcast_client_example-speakers
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - instance=2
+            - server=gworker
+            - USE_STEREO=false
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 15s
+            retries: 3
+        image: 'gtstef/snapclient'
+        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
+# First bluetooth device - depnds on server
+    client-bluetooth1:
+        hostname: bluetooth1
+        container_name: snapcast_client_bluetooth1
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - DEVICE="A4:05:0A:19:90:16"
+            - instance=1
+            - server=gworker
+            - USE_STEREO=false
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 15s
+            retries: 3
+        image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
+# Second bluetooth device - depnds on first bluetooth device!
+# Two bluetooth devices on one host requires BT 5.0 host module.
+# Only certain devices support this, eg raspberry pi 4
+    client-bluetooth2:
+        hostname: bluetooth2
+        container_name: snapcast_client_bluetooth2
+        restart: 'on-failure:3'
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+        devices:
+            - /dev/snd
+        privileged: true
+        environment:
+            - DEVICE="F5:63:4B:0F:D4:8F"
+            - instance=3  # make sure unique number - no other clients have!
+            - server=gworker # enter your own hostname
+            - USE_STEREO=false # if you want mono bluetooth
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "snapclient"]
+            timeout: 15s
+            retries: 3
+        image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
