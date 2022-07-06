@@ -10,6 +10,10 @@ services:
             - buffer=1000
             - host=gworker # replace with host
         image: 'gtstef/snapserver'
+        #image: 'gtstef/snapserver:0.3.3' # optional - build locally instead
+        #build:
+        #    context: ./snapserver
+        #    dockerfile: dockerfile
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
@@ -23,7 +27,10 @@ services:
         environment:
             - host=gworker
         network_mode: host
-        image: 'gtstef/snapserver-cleanup-agent'
+        #image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
+        #build:
+        #    context: ./snapserver
+        #    dockerfile: dockerfile.cleanup
         restart: unless-stopped
 
 # First bluetooth device - depnds on server
@@ -51,8 +58,13 @@ services:
             timeout: 10s
             retries: 3
         image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
 
 # Second bluetooth device - depnds on first bluetooth device!
+# Two bluetooth devices on one host requires BT 5.0 host module.
+# Only certain devices support this, eg raspberry pi 4
     client-bedroom:
         depends_on:
             client-kitchen:
@@ -77,6 +89,9 @@ services:
             timeout: 10s
             retries: 3
         image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
 
     tv:
         depends_on:
@@ -100,3 +115,7 @@ services:
             timeout: 5s
             retries: 1
         image: 'gtstef/snapclient'
+        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
