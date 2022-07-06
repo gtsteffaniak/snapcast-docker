@@ -51,7 +51,7 @@ services:
             - instance=1
             - server=gworker
             - USE_STEREO=false
-            - AUDIO_LATENCY="120" #  buffer/latency (each bt is diff)
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
@@ -81,7 +81,7 @@ services:
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname
             - USE_STEREO=false # if you want mono bluetooth
-            - AUDIO_LATENCY="120" #  buffer/latency (each bt is diff)
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s

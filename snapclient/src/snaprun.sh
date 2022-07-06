@@ -1,6 +1,6 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-: ${AUDIO_LATENCY:="50"}  # default bluetooth latency/buffer ms !important   
+: ${AUDIO_LATENCY:=50}  # default bluetooth latency/buffer ms !important   
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 ARGS=""
 echo "stereo setting: $USE_STEREO"
