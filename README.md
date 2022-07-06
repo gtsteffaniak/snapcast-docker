@@ -7,13 +7,12 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
  * Snapcast Server
    * (optional) docker-compose
    * Cleanup job (remove old clients)
-   * MPD server
+   * MPD service
    * librespot
    * snapweb controller
  * Snapcast Client
-   * initiated via bootstrap.sh
-   * multiple arch files
-   * docker-compose WIP
+   * initiated via bootstrap.sh or docker-compose
+   * multiple arch files (armv7l , arm64 , amd64)
    * bluetooth support
 
 ## About
@@ -55,6 +54,8 @@ examples:
  1. Using docker-compose:
    * Update docker-compose host to match your environment
    * run `docker-compose up -d` on main directory
+
+Note: you can either use the pre-built images I provide at `gtstef/<image>` or use `build` in the docker-compose file.
 
 ```
 graham@gworker:~/git/snapcast-docker $ docker-compose up -d
