@@ -84,6 +84,48 @@ Use 'docker scan' to run Snyk tests against images to find vulnerabilities and l
 ```
 
 Note: docker compose can be stopped simultaneously with `docker-compose down` or individually with `docker-compose down <name>`
+
+## Controlling Snapcast
+
+You can control snapcast using the same method of `snapweb` carried over from [snapcast](https://github.com/badaix/snapcast#webapp)
+<img width="542" alt="image" src="https://user-images.githubusercontent.com/42989099/177597063-570a60be-8d73-457f-8d87-777e4922771e.png">
+
+## Homeassistant integration
+
+1. This implementation of Snapserver includes an [MPD service](https://www.musicpd.org/) which you can hook into homeassistant.
+```
+#####################
+### MEDIA PLAYERS ###
+#####################
+media_player:
+  # MPD instance for TTS.
+  - platform: mpd
+    host: <enter hostname of snapserver>
+    port: 6600
+```
+<img width="368" alt="image" src="https://user-images.githubusercontent.com/42989099/177598035-30db4d41-cd25-4ad2-8508-0c2de905173b.png">
+
+Note: voice plays at full volume! so whatever you are sending to the MPD service should probably be at reduced volume.
+
+For example , I use marytts on homeassistant and can specify the volume :
+
+```
+#####################
+### Speech TTS    ###
+#####################
+tts:
+  - platform: marytts
+    host: "<marytts host here>"
+    port: 59125
+    codec: "WAVE_FILE"
+    voice: "dfki-spike-hsmm"
+    language: "en_GB"
+    effect:
+      Volume: "amount:0.4;"    ## reduced volume!
+      Rate: "durScale:1.2;"
+  - platform: google_translate
+```
+
 ## Roadmap
 
 There is a lot of tweaking that needs to be done.
