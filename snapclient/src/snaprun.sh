@@ -1,10 +1,6 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-<<<<<<< HEAD
 : ${AUDIO_LATENCY:="50"}  # default bluetooth latency/buffer ms !important   
-=======
-LATENCY="100"         # default bluetooth latency/buffer ms !important
->>>>>>> f111780f5c57a7aa4c7ce322b5e162e65c010efc
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 ARGS=""
 echo "stereo setting: $USE_STEREO"
@@ -139,11 +135,7 @@ function withBluetooth() {
 	getSink
 	# pactl send-message /card/$CARD/bluez switch-codec '"sbc_xq_552"'
 	# set buffer to equal set $LATENCY
-<<<<<<< HEAD
 	pactl set-port-latency-offset $CARD headset-output "$AUDIO_LATENCY"000
-=======
-	pactl set-port-latency-offset $CARD headset-output 100000
->>>>>>> f111780f5c57a7aa4c7ce322b5e162e65c010efc
 	aplay long_bel.wav
 	VOLUME="125%" # default volume boost
 	################################################
