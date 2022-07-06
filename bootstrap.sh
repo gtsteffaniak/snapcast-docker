@@ -9,6 +9,7 @@ usage() {
 	-i (specifies instance/ip... fix ip conflicts)
 	-h snapserver ip/hostame manual assignment
 	-v version of docker image (leave blank for latest)
+	-l latency buffer in ms for bluetooth device (default 50ms )
 	-m disable stereo ( enable for mono bt speaker)
 "
 	echo -e "examples:
@@ -18,13 +19,14 @@ usage() {
 \t./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9
 "
 }
-while getopts ':n:d:i:v:h:m' opt; do
+while getopts ':n:d:i:v:h:l:m' opt; do
 	case "${opt}" in
 	n) name=$OPTARG ;;
 	d) device=$OPTARG ;;
 	i) sip=$OPTARG ;;
 	v) version=$OPTARG ;;
 	h) server=$OPTARG ;;
+	l) AUDIO_LATENCY=$OPTARG ;;
 	m) USE_STEREO=false ;;
 	esac
 done
@@ -35,6 +37,7 @@ echo "       IP        : $sip"
 echo "       version   : $version"
 echo "       server    : $server"
 echo "       stereo    : $USE_STEREO"
+echo "       LATENCY   : $USE_STEREO"
 verify=true
 dpkg -s jq &>/dev/null
 if [ $? -ne 0 ]; then
@@ -192,6 +195,7 @@ startcontainer() {
 		-e DEVICE="$device" \
 		-e instance="$sip" \
 		-e server="$server" \
+		-e AUDIO_LATENCY="$AUDIO_LATENCY" \
 		-e USE_STEREO=$USE_STEREO \
 		--name "$name" \
 		gtstef/snapclient:$version

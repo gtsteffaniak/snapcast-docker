@@ -1,6 +1,6 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-LATENCY="175"         # default bluetooth latency/buffer ms !important
+: ${AUDIO_LATENCY:="50"}  # default bluetooth latency/buffer ms !important   
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 ARGS=""
 echo "stereo setting: $USE_STEREO"
@@ -89,7 +89,7 @@ function withBluetooth() {
 	pulseaudio --k
 	# start with bluetooth device
 	# Latency value tries to sync with sound, but may need to be higher or lower
-	ARGS="$ARGS --latency=$LATENCY --logsink null"
+	ARGS="$ARGS --latency=$AUDIO_LATENCY --logsink null"
 	#ARGS="$ARGS -s 3"
 
 	printf "default-fragments = 10\n" >>/etc/pulse/daemon.conf
@@ -136,7 +136,7 @@ function withBluetooth() {
 	getSink
 	# pactl send-message /card/$CARD/bluez switch-codec '"sbc_xq_552"'
 	# set buffer to equal set $LATENCY
-	pactl set-port-latency-offset $CARD headset-output 125000
+	pactl set-port-latency-offset $CARD headset-output "$AUDIO_LATENCY"000
 	aplay long_bel.wav
 	VOLUME="125%" # default volume boost
 	################################################

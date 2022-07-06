@@ -9,7 +9,7 @@ services:
             - chunk_ms=30
             - buffer=1000
             - host=gworker # replace with host
-        image: 'gtstef/snapserver:0.3.3'
+        image: 'gtstef/snapserver'
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
@@ -45,14 +45,14 @@ services:
             - instance=1
             - server=gworker
             - USE_STEREO=false
+            - AUDIO_LATENCY="120" #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
 
 # Second bluetooth device - depnds on first bluetooth device!
-# if you try to pair two bluetooth devices at the same time... you get failure.
     client-bedroom:
         depends_on:
             client-kitchen:
@@ -71,11 +71,12 @@ services:
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname
             - USE_STEREO=false # if you want mono bluetooth
+            - AUDIO_LATENCY="120" #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
 
     tv:
         depends_on:
@@ -98,4 +99,4 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
             retries: 1
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
