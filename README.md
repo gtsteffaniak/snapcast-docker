@@ -57,6 +57,22 @@ examples:
    * run `docker-compose up -d` on main directory
 
 ```
+graham@gworker:~/git/snapcast-docker $ docker-compose up -d
+snapcast_server_main is up-to-date
+Recreating snapcast_client_kitchen-bt ...
+Recreating snapcast_client_kitchen-bt ... done
+Recreating snapcast_client_tv         ... done
+Creating snapcast_client_bedroom-bt   ... done
+
+graham@gworker:~/git/snapcast-docker $ docker ps
+CONTAINER ID   IMAGE                             COMMAND                  CREATED              STATUS                             PORTS                                 NAMES
+3937de895247   gtstef/snapclient                 "./snaprun.sh"           48 seconds ago       Up 45 seconds (health: starting)                                         snapcast_client_bedroom-bt
+94304a1ba59d   gtstef/snapclient                 "./snaprun.sh"           About a minute ago   Up About a minute (healthy)                                              snapcast_client_tv
+42cbbfbed78d   gtstef/snapclient                 "./snaprun.sh"           About a minute ago   Up About a minute (healthy)                                              snapcast_client_kitchen-bt
+228fb8ed6c79   gtstef/snapserver-cleanup-agent   "./cleanup.sh"           13 minutes ago       Up 12 minutes                                                            snapcast_server_cleanup_agent
+b438aa852470   gtstef/snapserver                 "./run.sh"               13 minutes ago       Up 13 minutes (healthy)                                                  snapcast_server_main
+
+
 Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
 [+] Running 5/6
  ⠿ Network snapcast-docker_default            Created                                                                                                                                                         0.0s
