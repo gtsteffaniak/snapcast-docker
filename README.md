@@ -7,13 +7,16 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
  * Snapcast Server
    * (optional) docker-compose
    * Cleanup job (remove old clients)
-   * MPD service
+   * MPD server
    * librespot
    * snapweb controller
  * Snapcast Client
-   * initiated via bootstrap.sh or docker-compose
-   * multiple arch files (armv7l , arm64 , amd64)
+   * initiated via bootstrap.sh
+   * multiple arch files
+   * docker-compose WIP
    * bluetooth support
+   * pulseaudio 15 (using latest gtstef/snapclient)
+   * bluez 5.60    (using latest gtstef/snapclient)
 
 ## About
 
@@ -55,25 +58,7 @@ examples:
    * Update docker-compose host to match your environment
    * run `docker-compose up -d` on main directory
 
-Note: you can either use the pre-built images I provide at `gtstef/<image>` or use `build` in the docker-compose file.
-
 ```
-graham@gworker:~/git/snapcast-docker $ docker-compose up -d
-snapcast_server_main is up-to-date
-Recreating snapcast_client_kitchen-bt ...
-Recreating snapcast_client_kitchen-bt ... done
-Recreating snapcast_client_tv         ... done
-Creating snapcast_client_bedroom-bt   ... done
-
-graham@gworker:~/git/snapcast-docker $ docker ps
-CONTAINER ID   IMAGE                             COMMAND                  CREATED              STATUS                             PORTS                                 NAMES
-3937de895247   gtstef/snapclient                 "./snaprun.sh"           48 seconds ago       Up 45 seconds (health: starting)                                         snapcast_client_bedroom-bt
-94304a1ba59d   gtstef/snapclient                 "./snaprun.sh"           About a minute ago   Up About a minute (healthy)                                              snapcast_client_tv
-42cbbfbed78d   gtstef/snapclient                 "./snaprun.sh"           About a minute ago   Up About a minute (healthy)                                              snapcast_client_kitchen-bt
-228fb8ed6c79   gtstef/snapserver-cleanup-agent   "./cleanup.sh"           13 minutes ago       Up 12 minutes                                                            snapcast_server_cleanup_agent
-b438aa852470   gtstef/snapserver                 "./run.sh"               13 minutes ago       Up 13 minutes (healthy)                                                  snapcast_server_main
-
-
 Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
 [+] Running 5/6
  ⠿ Network snapcast-docker_default            Created                                                                                                                                                         0.0s
@@ -86,47 +71,23 @@ Use 'docker scan' to run Snyk tests against images to find vulnerabilities and l
 
 Note: docker compose can be stopped simultaneously with `docker-compose down` or individually with `docker-compose down <name>`
 
-## Controlling Snapcast
-
-You can control snapcast using the same method of `snapweb` carried over from [snapcast](https://github.com/badaix/snapcast#webapp)
-<img width="542" alt="image" src="https://user-images.githubusercontent.com/42989099/177597063-570a60be-8d73-457f-8d87-777e4922771e.png">
-
-## Homeassistant integration
-
-1. This implementation of Snapserver includes an [MPD service](https://www.musicpd.org/) which you can hook into homeassistant.
 ```
-#####################
-### MEDIA PLAYERS ###
-#####################
-media_player:
-  # MPD instance for TTS.
-  - platform: mpd
-    host: <enter hostname of snapserver>
-    port: 6600
+~/git/snapcast-docker$ docker-compose down
+[+] Running 6/6
+ ⠿ Container tv                               Removed                                                                                                                                                        10.2s
+ ⠿ Container bedroom                          Removed                                                                                                                                                         0.0s
+ ⠿ Container snapcast-docker-cleanup_agent-1  Removed                                                                                                                                                        10.1s
+ ⠿ Container kitchen                          Removed                                                                                                                                                         2.1s
+ ⠿ Container snapcast-docker-server-1         Removed                                                                                                                                                        10.1s
+ ⠿ Network snapcast-docker_default            Removed
 ```
-<img width="368" alt="image" src="https://user-images.githubusercontent.com/42989099/177598035-30db4d41-cd25-4ad2-8508-0c2de905173b.png">
-
-Note: voice plays at full volume! so whatever you are sending to the MPD service should probably be at reduced volume.
-
-For example , I use marytts on homeassistant and can specify the volume :
-
-```
-#####################
-### Speech TTS    ###
-#####################
-tts:
-  - platform: marytts
-    host: "<marytts host here>"
-    port: 59125
-    codec: "WAVE_FILE"
-    voice: "dfki-spike-hsmm"
-    language: "en_GB"
-    effect:
-      Volume: "amount:0.4;"    ## reduced volume!
-      Rate: "durScale:1.2;"
-  - platform: google_translate
-```
-
 ## Roadmap
 
-There is a lot of tweaking that needs to be done.
+ * Pulseaudio 16 (currently included with snapbase, but needs to be added to snapclient dockerfile)
+ * Better arm32/armv7l support. Currently, librespot does not work.
+ * improved deployment process, likely bash script to name everything properly without manually editing docker-compose
+ * More pulseaudio configurations via env variables
+ * Add more streams than just spotfy/tts/notifications
+ * Ability to add streams via env variable to snapserver
+ * Include [latest bluez](https://github.com/bluez/bluez) in snapbase and include in snapclient for more updated bluetooth support. `latest bluez = 5.64`
+

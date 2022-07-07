@@ -47,7 +47,6 @@ services:
         privileged: true
         environment:
             - DEVICE="A4:05:0A:19:90:16"
-            - host=gworker
             - instance=1
             - server=gworker
             - USE_STEREO=false
@@ -77,7 +76,6 @@ services:
         privileged: true
         environment:
             - DEVICE="F5:63:4B:0F:D4:8F"
-            - host=gworker # enter your own hostname
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname
             - USE_STEREO=false # if you want mono bluetooth
@@ -103,7 +101,6 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - host=gworker
             - instance=2
             - server=gworker
             - USE_STEREO=false
