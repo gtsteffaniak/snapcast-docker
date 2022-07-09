@@ -1,5 +1,7 @@
 ## As base snapcast image to build snapclient and snapserver binary
 ## Use gtstef/snapbase as base on other images
+## I *highly* recommend you DO NOT BUILD, instead use gtstef/snapbase
+## Waring: This can take hours to build, and requires min of ~5GB of RAM
 
 FROM ubuntu:21.04
 ENV DEBIAN_FRONTEND=noninteractive
