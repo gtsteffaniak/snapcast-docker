@@ -1,4 +1,6 @@
 # Build librespot with cargo in builder stage
+# Note: currently not compatible with arm32
+
 FROM rust:slim-bullseye AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y install build-essential pkg-config curl
