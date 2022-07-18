@@ -1,7 +1,7 @@
 version: '2.2'
 services:
-
     server:
+        container_name: snapcast_server_main
         volumes:
             - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
         network_mode: host # easier than doing ports
@@ -9,36 +9,36 @@ services:
             - chunk_ms=30
             - buffer=1000
             - host=gworker # replace with host
+        image: 'gtstef/snapserver'
         #image: 'gtstef/snapserver:0.3.3' # optional - build locally instead
-        build:
-            context: ./snapserver
-            dockerfile: dockerfile
+        #build:
+        #    context: ./snapserver
+        #    dockerfile: dockerfile
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
             timeout: 5s
             retries: 3
-
     cleanup_agent:
+        container_name: snapcast_server_cleanup_agent
         depends_on:
             server:
                 condition: service_healthy
         environment:
             - host=gworker
         network_mode: host
-        #image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
-        build:
-            context: ./snapserver
-            dockerfile: dockerfile.cleanup
+        image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
+        #build:
+        #    context: ./snapserver
+        #    dockerfile: dockerfile.cleanup
         restart: unless-stopped
-
 # First bluetooth device - depnds on server
     client-kitchen:
         depends_on:
             server:
                 condition: service_healthy
         hostname: kitchen
-        container_name: kitchen
+        container_name: snapcast_client_kitchen-bt
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -47,19 +47,18 @@ services:
         privileged: true
         environment:
             - DEVICE="A4:05:0A:19:90:16"
-            - host=gworker
             - instance=1
             - server=gworker
             - USE_STEREO=false
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
-        build:
-            context: ./snapclient
-            dockerfile: dockerfile
-
+        image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
 # Second bluetooth device - depnds on first bluetooth device!
 # Two bluetooth devices on one host requires BT 5.0 host module.
 # Only certain devices support this, eg raspberry pi 4
@@ -68,7 +67,7 @@ services:
             client-kitchen:
                 condition: service_healthy
         hostname: bedroom
-        container_name: bedroom
+        container_name: snapcast_client_bedroom-bt
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -77,25 +76,24 @@ services:
         privileged: true
         environment:
             - DEVICE="F5:63:4B:0F:D4:8F"
-            - host=gworker # enter your own hostname
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname
             - USE_STEREO=false # if you want mono bluetooth
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
-        build:
-            context: ./snapclient
-            dockerfile: dockerfile
-
+        image: 'gtstef/snapclient'
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile
     tv:
         depends_on:
             server:
                 condition: service_healthy
         hostname: tv
-        container_name: tv
+        container_name: snapcast_client_tv
         restart: 'on-failure:3'
         volumes:
             - '/var/run/dbus:/var/run/dbus'
@@ -103,7 +101,6 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - host=gworker
             - instance=2
             - server=gworker
             - USE_STEREO=true
@@ -111,7 +108,8 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
             retries: 1
+        image: 'gtstef/snapclient'
         #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
-        build:
-            context: ./snapclient
-            dockerfile: dockerfile
+        #build:
+        #    context: ./snapclient
+        #    dockerfile: dockerfile

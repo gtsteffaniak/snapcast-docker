@@ -1,5 +1,7 @@
 ## As base snapcast image to build snapclient and snapserver binary
-## Use gtstef/snapbase:0.xx as base
+## Use gtstef/snapbase as base on other images
+## I *highly* recommend you DO NOT BUILD, instead use gtstef/snapbase
+## Waring: This can take hours to build, and requires min of ~5GB of RAM
 
 FROM ubuntu:21.04
 ENV DEBIAN_FRONTEND=noninteractive
@@ -22,6 +24,7 @@ RUN apt update && apt install -y curl \
 RUN apt update && apt install -y curl xmltoman libudev-dev libevdev-dev libsystemd-dev libglib2.0-dev \
         libjson-glib-dev libunistring-dev check valgrind swig && \
         apt-get clean && rm -fR /var/lib/apt/lists
+
 WORKDIR /opt/
 RUN pip3 install meson
 #RUN git clone https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git
@@ -36,4 +39,11 @@ RUN ninja -C build install
 WORKDIR /opt
 RUN git clone https://github.com/badaix/snapcast.git
 WORKDIR /opt/snapcast
-RUN make -j$(nproc) client server
+RUN make client server
+
+# remove build utilities to shrink final base image as small as feasable.
+RUN apt purge -y \
+    build-essential git python3* ninja-build \
+    cmake doxygen check valgrind swig \
+    && apt clean && rm -fR /var/lib/apt/lists \
+    && apt autoremove -y

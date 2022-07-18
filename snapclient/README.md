@@ -1,48 +1,57 @@
-# snapcast-docker info
+# Snapcast Client
 
-Multi-Room audio bundled into docker with a few extras to make it work a little better. Includes spotify librespot by default.
+This readme describe the various ways to use snapcast client (snapclient).
+This requires a running snapcast server (snapserver). View 
+[snapserver](../snapserver/README.md) for more information.
 
-## Included resources
+## Snapcast Client
+* can be started two ways:
+   * via bootstrap.sh
+   * via docker-compose.yml
+* multiple arch files
+   * arm64
+   * arm32
+   * amd64
+   * or build your own
+* bluetooth support
+   * Requires compatible hardware
+   * Requires host to be running working firmware
+* pulseaudio 15 (using latest gtstef/snapclient)
+* bluez 5.60    (using latest gtstef/snapclient)
 
- * [Snapcast Server](snapserver/README.md)
-   * Can be started two ways:
-     * docker run
-     * docker-compose.yml
-   * Cleanup job to remove old clients. (see docker-compose.yml)
-   * MPD server (for external audio sources. eg: tts, music, notifications)
-   * librespot (for spotify integration, provided by default)
-     * spotify app on same network should see a "Snapcast" device to play to
-   * snapweb controller - for volume control and speaker grouping.
-
- * [Snapcast Client](snapclient/README.md)
-   * Can be started two ways:
-     * via bootstrap.sh
-     * via docker-compose.yml
-   * multiple arch files
-     * arm64
-     * arm32
-     * amd64
-     * or build your own
-   * bluetooth support
-     * Requires compatible hardware
-     * Requires host to be running working firmware
-   * pulseaudio 15 (using latest gtstef/snapclient)
-   * bluez 5.60    (using latest gtstef/snapclient)
-
-## About
-
- * Snapserver runs the server which is required.
- * Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
- * Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
+* Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
+* Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
 
 ## How to use
 
-You can either start the snapcast server seperately from clients - useful for
-multi device configurations. Or to use server and client on same device, you can
-run the all-in-one docker-compose.yml file to start server and client devices 
-running on the same device.
+You can either use the bootstrap.sh or docker-compose.
 
- Using docker-compose:
+1. Using bootstrap.sh (client init):
+   * Firstly, get the server running, either of the following options:
+      * (preferred) navigate to `./snapserver` and initiate `docker-compose up -d`
+      * or use `docker run` by running `docker run -d --net host -v '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket' -name snapserver gtstef/snapserver`
+   * Run `./bootstrap.sh`, examples
+      * `./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9 -h snapserver-ip-or-hostname `
+      * `./bootstrap.sh -n local-audio -h localhost `
+```
+usage: ./bootstrap.sh
+   flags:
+        -n [name of client speaker]
+   optional:
+        -d [bluetooth mac]
+        -r (specifies to remove/recreate existing container)
+        -i (specifies instance/ip... fix ip conflicts)
+        -h snapserver ip/hostame manual assignment
+        -v version of docker image (leave blank for latest)
+        -m disable stereo ( enable for mono bt speaker)
+
+examples:
+        # create single client local speaker device (ie: headphone jack speaker)
+        ./bootstrap.sh -n my-speaker
+        # create bluetooth speaker (will begin pairing process)
+        ./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9
+```
+ 1. Using docker-compose:
    * Update docker-compose host to match your environment
    * run `docker-compose up -d` on main directory
 
@@ -69,14 +78,3 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
  ⠿ Container snapcast-docker-server-1         Removed                                                                                                                                                        10.1s
  ⠿ Network snapcast-docker_default            Removed
 ```
-
-## Roadmap
-
- * Pulseaudio 16 (currently included with snapbase, but needs to be added to snapclient dockerfile)
- * Better arm32/armv7l support. Currently, librespot does not work.
- * improved deployment process, likely bash script to name everything properly without manually editing docker-compose
- * More pulseaudio configurations via env variables
- * Add more streams than just spotfy/tts/notifications
- * Ability to add streams via env variable to snapserver
- * Include [latest bluez](https://github.com/bluez/bluez) in snapbase and include in snapclient for more updated bluetooth support. `latest bluez = 5.64`
-

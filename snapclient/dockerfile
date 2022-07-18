@@ -1,4 +1,4 @@
-FROM gtstef/snapbase:0.27 as base
+FROM gtstef/snapbase as base
 FROM ubuntu:21.10
 
 # To avoid problems with Dialog and curses wizards
