@@ -1,6 +1,6 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-LATENCY="100"         # default bluetooth latency/buffer ms !important
+LATENCY="125"         # default bluetooth latency/buffer ms !important
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 ARGS=""
 echo "stereo setting: $USE_STEREO"
@@ -74,8 +74,8 @@ function noBluetooth() {
 	sleep 1
 	pactl load-module module-alsa-sink
 	pactl load-module module-alsa-card
-	printf "default-fragments = 3\n" >>/etc/pulse/daemon.conf
-	printf "default-fragment-size-msec = 8\n" >>/etc/pulse/daemon.conf
+	printf "\ndefault-fragments = 3\n" >>/etc/pulse/daemon.conf
+	printf "default-fragment-size-msec = 5\n" >>/etc/pulse/daemon.conf
 	pulseaudio --start
 	VOLUME="125%" # default volume boost
 	getSink
@@ -91,9 +91,8 @@ function withBluetooth() {
 	ARGS="$ARGS --latency=$LATENCY --logsink null"
 	#ARGS="$ARGS -s 3"
 
-	printf "default-fragments = 10\n" >>/etc/pulse/daemon.conf
+	printf "\ndefault-fragments = 10\n" >>/etc/pulse/daemon.conf
 	printf "default-fragment-size-msec = 25\n" >>/etc/pulse/daemon.conf
-	printf "high-priority = yes\n" >>/etc/pulse/daemon.conf
 	#printf "realtime-scheduling = yes\n" >> /etc/pulse/daemon.conf
 	#printf "realtime-priority = 1\n" >> /etc/pulse/daemon.conf
 	pulseaudio --start

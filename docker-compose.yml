@@ -106,7 +106,7 @@ services:
             - host=gworker
             - instance=2
             - server=gworker
-            - USE_STEREO=false
+            - USE_STEREO=true
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
