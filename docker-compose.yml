@@ -10,7 +10,6 @@ services:
             - buffer=1000
             - host=gworker # replace with host
         image: 'gtstef/snapserver'
-        #image: 'gtstef/snapserver:0.3.3' # optional - build locally instead
         #build:
         #    context: ./snapserver
         #    dockerfile: dockerfile
@@ -39,7 +38,7 @@ services:
                 condition: service_healthy
         hostname: kitchen
         container_name: snapcast_client_kitchen-bt
-        restart: 'on-failure:3'
+        restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
         devices:
@@ -68,7 +67,7 @@ services:
                 condition: service_healthy
         hostname: bedroom
         container_name: snapcast_client_bedroom-bt
-        restart: 'on-failure:3'
+        restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
         devices:
@@ -94,7 +93,7 @@ services:
                 condition: service_healthy
         hostname: tv
         container_name: snapcast_client_tv
-        restart: 'on-failure:3'
+        restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
         devices:
@@ -109,7 +108,6 @@ services:
             timeout: 5s
             retries: 1
         image: 'gtstef/snapclient'
-        #image: 'gtstef/snapclient:0.3.0' # optional - build locally instead
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile

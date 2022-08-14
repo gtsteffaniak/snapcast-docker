@@ -135,6 +135,7 @@ function withBluetooth() {
 	# pactl send-message /card/$CARD/bluez switch-codec '"sbc_xq_552"'
 	# force sbc codec... issues occur with other codecs.
 	pactl send-message /card/$CARD/bluez switch-codec '"sbc"'
+	pactl set-port-latency-offset $CARD headset-output 100000 # for stability
 	aplay long_bel.wav
 	VOLUME="125%" # default volume boost
 	################################################
