@@ -13,7 +13,7 @@ services:
         #build:
         #    context: ./snapserver
         #    dockerfile: dockerfile
-        restart: unless-stopped
+        restart: "no"
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
             timeout: 5s
@@ -30,7 +30,7 @@ services:
         #build:
         #    context: ./snapserver
         #    dockerfile: dockerfile.cleanup
-        restart: unless-stopped
+        restart: "no"
 # First bluetooth device - depnds on server
     client-kitchen:
         depends_on:
