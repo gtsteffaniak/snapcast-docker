@@ -1,0 +1,39 @@
+FROM gtstef/snapbase:alpine as base
+FROM alpine:3.16
+
+# Define a user under which the pulseaudio server will be running
+ENV USER pulseaudio
+ENV UID 1000
+ENV GROUPS audio
+ENV HOME /home/$USER
+RUN apk --no-cache add \
+    bash curl procps netcat-openbsd expect sudo \
+    pulseaudio pulseaudio-bluez pulseaudio-utils \
+    bluez-dev bluez alsa-utils alsa-lib alsaconf \
+    avahi-libs
+
+RUN adduser -S $USER -G $GROUPS
+
+RUN chmod 0655 -- /etc/pulse/* && \
+    mkdir -p $HOME/.config/pulse && \
+    chown -Rh $USER:$GROUPS -- $HOME && \
+    echo "$USER:x:${GROUPS}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd && \
+    echo "$USER:x:${GROUPS}:" >>/etc/group && \
+    mkdir -p /etc/sudoers.d && \
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
+    chmod 0440 /etc/sudoers.d/$USER
+
+USER $USER
+WORKDIR $HOME
+
+# copy snapclient
+COPY --from=base --chown=root:$GROUPS /opt/snapcast/client/snapclient /usr/bin/
+COPY [ "src/.asoundrc*", "src/*.wav", "./" ]
+COPY [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
+COPY [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
+COPY src/snaprun.sh .
+RUN sudo chmod +x snaprun.sh
+RUN sudo chown $USER:$GROUPS -R .
+RUN sudo chown $USER:$GROUPS /etc/pulse/daemon.conf
+
+ENTRYPOINT ["./snaprun.sh"]

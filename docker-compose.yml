@@ -63,7 +63,7 @@ services:
 # Only certain devices support this, eg raspberry pi 4
     client-bedroom:
         depends_on:
-            client-kitchen:
+            server:
                 condition: service_healthy
         hostname: bedroom
         container_name: snapcast_client_bedroom-bt

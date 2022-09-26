@@ -1,5 +1,5 @@
 FROM gtstef/snapbase as base
-FROM ubuntu:21.10
+FROM ubuntu:22.10
 
 # To avoid problems with Dialog and curses wizards
 ENV DEBIAN_FRONTEND noninteractive
