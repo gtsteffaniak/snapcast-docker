@@ -1,9 +1,10 @@
 ## As base snapcast image to build snapclient and snapserver binary
 ## Use gtstef/snapbase as base on other images
-## I *highly* recommend you DO NOT BUILD, instead use gtstef/snapbase
+## I highly recommend you use gtstef/snapbase instead
 ## Waring: This can take hours to build, and requires min of ~5GB of RAM
-
-FROM ubuntu:21.04
+## pi devices may not be able to.
+FROM gtstef/librespot:0.4.2 as librespot
+FROM ubuntu:22.10 as base
 ENV DEBIAN_FRONTEND=noninteractive
 
 # general build requirements
@@ -39,11 +40,9 @@ RUN ninja -C build install
 WORKDIR /opt
 RUN git clone https://github.com/badaix/snapcast.git
 WORKDIR /opt/snapcast
-RUN make client server
+RUN make -j8 client server
 
-# remove build utilities to shrink final base image as small as feasable.
-RUN apt purge -y \
-    build-essential git python3* ninja-build \
-    cmake doxygen check valgrind swig \
-    && apt clean && rm -fR /var/lib/apt/lists \
-    && apt autoremove -y
+FROM ubuntu:22.10
+COPY --from=librespot /usr/local/bin/ /usr/local/bin/
+COPY --from=base /opt/snapcast/client/snapclient /opt/snapcast/client/snapclient
+COPY --from=base /opt/snapcast/server/snapserver /opt/snapcast/server/snapserver

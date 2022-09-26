@@ -10,7 +10,7 @@ ENV USER pulseaudio
 ENV UID 1000
 ENV GROUPS audio
 ENV HOME /home/$USER
-RUN apt update && apt install -y procps netcat curl \
+RUN apt update && apt install -y procps netcat-traditional curl \
     pulseaudio pulseaudio-module-bluetooth bluez alsa-utils \
     libavahi-client-dev libbluetooth3 expect sudo && \
     apt clean && rm -rf /var/lib/apt/lists
