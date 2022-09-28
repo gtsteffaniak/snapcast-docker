@@ -1,0 +1,8 @@
+FROM alpine:3.16
+RUN apk add --no-cache avahi-libs avahi snapcast-server mpd curl librespot
+WORKDIR /opt
+COPY src .
+RUN chmod 777 -R /opt/mpd
+RUN chmod +x run.sh
+
+ENTRYPOINT ["./run.sh"]

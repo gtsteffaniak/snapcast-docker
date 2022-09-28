@@ -1,5 +1,4 @@
-FROM gtstef/snapbase as base
-FROM ubuntu:22.10
+FROM ubuntu:20.10
 
 # To avoid problems with Dialog and curses wizards
 ENV DEBIAN_FRONTEND noninteractive
@@ -12,7 +11,7 @@ ENV GROUPS audio
 ENV HOME /home/$USER
 RUN apt update && apt install -y procps netcat-traditional curl \
     pulseaudio pulseaudio-module-bluetooth bluez alsa-utils \
-    libavahi-client-dev libbluetooth3 expect sudo && \
+    libavahi-client-dev libbluetooth3 expect sudo snapclient && \
     apt clean && rm -rf /var/lib/apt/lists
 
 RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
@@ -28,23 +27,6 @@ RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
     chsh -s /bin/bash $USER
 USER $USER
 WORKDIR $HOME
-
-# copy snapclient
-COPY --from=base --chown=root:$USER /opt/snapcast/client/snapclient /usr/bin/
-
-# copy pulseaudio
-#COPY --from=base /usr/lib/aarch64-linux-gnu/pulseaudio /usr/lib/pulse-14.2/modules
-#COPY --from=base /usr/lib/pulse-15.0+dfsg1/modules/*blue* /opt/
-#COPY --from=base --chown=root:pulseaudio /usr/local/bin/pulseaudio /usr/local/bin/
-#COPY --from=base --chown=root:pulseaudio /usr/local/bin/pa* /usr/local/bin/
-#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/libpulse* /usr/local/lib/aarch64-linux-gnu/
-#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pkgconfig/ /usr/local/lib/aarch64-linux-gnu/pkgconfig/
-#COPY --from=base --chown=root:pulseaudio /usr/local/etc/pulse/ /etc/pulse/
-#COPY --from=base --chown=root:pulseaudio /usr/local/lib/aarch64-linux-gnu/pulseaudio/ /usr/local/lib/aarch64-linux-gnu/pulseaudio/
-
-#RUN apt-get -f install -y
-#RUN sudo apt autoremove -y && apt clean all -y
-#RUN rm -rf *.deb
 
 RUN cd $HOME
 

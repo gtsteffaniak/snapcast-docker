@@ -47,14 +47,14 @@ services:
         environment:
             - DEVICE="A4:05:0A:19:90:16"
             - instance=1
-            - server=gworker
+            - server=gworker.ghome.net
             - USE_STEREO=false
             - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient'
+        image: 'gtstef/snapclient:alpine'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
@@ -83,7 +83,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient'
+        image: 'gtstef/snapclient:alpine'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
@@ -101,7 +101,7 @@ services:
         privileged: true
         environment:
             - instance=2
-            - server=gworker
+            - server=gworker.ghome.net
             - USE_STEREO=true
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]

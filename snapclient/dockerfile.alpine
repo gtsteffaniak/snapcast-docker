@@ -7,13 +7,30 @@ ENV UID 1000
 ENV GROUPS audio
 ENV HOME /home/$USER
 RUN apk --no-cache add \
-    bash curl procps netcat-openbsd expect sudo \
-    pulseaudio pulseaudio-bluez pulseaudio-utils \
-    bluez-dev bluez-alsa bluez alsa-utils alsa-lib alsaconf \
-    avahi-libs avahi snapcast-client
+    bash \
+    curl \
+    procps \
+    netcat-openbsd \
+    expect \
+    sudo \
+    pulseaudio \
+    pulseaudio-bluez \
+    pulseaudio-alsa \
+    pulseaudio-utils \
+    bluez-dev \
+    bluez-alsa \
+    bluez \
+    alsa-utils \
+    alsa-utils-doc \
+    alsa-lib \
+    alsaconf \
+    alsa-ucm-conf \
+    avahi-libs \
+    avahi \
+    snapcast-client \
+    alsa-plugins-pulse
 
 RUN adduser -S $USER -G $GROUPS
-
 RUN chmod 0655 -- /etc/pulse/* && \
     mkdir -p $HOME/.config/pulse && \
     chown -Rh $USER:$GROUPS -- $HOME && \
@@ -22,10 +39,8 @@ RUN chmod 0655 -- /etc/pulse/* && \
     mkdir -p /etc/sudoers.d && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
     chmod 0440 /etc/sudoers.d/$USER
-
 USER $USER
 WORKDIR $HOME
-
 COPY [ "src/.asoundrc*", "src/*.wav", "./" ]
 COPY [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
 COPY [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]

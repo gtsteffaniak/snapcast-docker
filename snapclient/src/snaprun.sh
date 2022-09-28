@@ -66,7 +66,7 @@ function start_cmd() {
 	echo "[INFO] launch command: snapclient $ARGS"
 	echo "[INFO] launch volume : $VOLUME"
 	echo "[INFO] launch sink: $SINK"
-	snapclient $ARGS
+	eval snapclient $ARGS
 }
 
 function noBluetooth() {
@@ -98,7 +98,7 @@ function withBluetooth() {
 	pulseaudio --start
 	sleep 1
 	#sometimes you need to remove the device first when reconnecting
-	sudo bluetoothctl remove $device
+	sudo bluetoothctl remove $DEVICE
 
 	################################################
 	# RUN with boosted volume and monitor for iss ues
@@ -118,10 +118,10 @@ function withBluetooth() {
 	send_user "\nWaiting for device.\r"
 	expect -re "\\\[NEW\\\] Device $address"
 	send_user "\nFound deivce.\r"
-	sleep 2
+	sleep 1
 	send "connect $address\r"
 	expect -re "Confirm passkey" { send "yes\r" }
-	sleep 3
+	sleep 1
 	send "trust $address\r"
 	send "scan off\r"
 	send "quit\r"
