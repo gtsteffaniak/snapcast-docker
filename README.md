@@ -1,4 +1,4 @@
-# snapcast-docker info
+# Snapcast docker info
 
 Multi-Room audio bundled into docker with a few extras to make it work a little better. Includes spotify librespot by default.
 
@@ -25,21 +25,21 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
      * or build your own
    * bluetooth support
      * Requires compatible hardware
-     * Requires host to be running working firmware
+     * Requires host to be running working bluez firmware (see more on this below)
    * pulseaudio 15 (using latest gtstef/snapclient)
    * bluez 5.60    (using latest gtstef/snapclient)
 
 ## About
 
- * Snapserver runs the server which is required.
+ * [Required] Snapserver runs the server
  * Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
  * Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
 
 ## How to use
 
-You can either start the snapcast server seperately from clients - useful for
+You can either start the snapcast server separately from clients - useful for
 multi device configurations. Or to use server and client on same device, you can
-run the all-in-one docker-compose.yml file to start server and client devices 
+run the all-in-one docker-compose.yml file to start server and client devices
 running on the same device.
 
  Using docker-compose:
@@ -70,13 +70,64 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
  ⠿ Network snapcast-docker_default            Removed
 ```
 
+## bluez performance
+
+Linux bluez firmware is essential for running bluetooth on linux. The differences between bluez versions is substantial. Not only is there big differences in features (such as codec support), theres also general stability and quality of A2DP streaming. Here is a table of my experience:
+
+### Raspberry pi 4 (Debian)
+| bluez version   | support for multiple |  runtime stability | crash frequency |
+|-----------------|:--------------------:|-------------------:|----------------:|
+| 5.55            |  does not pair       |   does not pair    |  does not pair  |
+| 5.56            |  TBD                 |                    |                 |
+| 5.57            |  TBD                 |                    |                 |
+| 5.58            |  TBD                 |                    |                 |
+| 5.59            |  TBD                 |                    |                 |
+| 5.60            |  does not pair       |   does not pair    |  does not pair  |
+| 5.61            |  TBD                 |                    |                 |
+| 5.62            |  TBD                 |                    |                 |
+| 5.63            |  TBD                 |                    |                 |
+| 5.64            |  TBD                 |                    |                 |
+| 5.65            |  not yet released    |                    |                 |
+
+### Debian with intel ax210
+| bluez version   | support for multiple |  runtime stability | crash frequency |
+|-----------------|:--------------------:|-------------------:|----------------:|
+| 5.55            |  TBD                 |                    |                 |
+| 5.56            |  TBD                 |                    |                 |
+| 5.57            |  TBD                 |                    |                 |
+| 5.58            |  TBD                 |                    |                 |
+| 5.59            |  TBD                 |                    |                 |
+| 5.60            |  TBD                 |                    |                 |
+| 5.61            |  TBD                 |                    |                 |
+| 5.62            |  TBD                 |                    |                 |
+| 5.63            |  TBD                 |                    |                 |
+| 5.64            |  TBD                 |                    |                 |
+| 5.65            |  not yet released    |                    |                 |
+### How to test bluez versions
+
+Since each bluez firmware and
+Simply compile and install new versions to the host with following:
+```
+version="5.55"
+sudo apt install build-essential libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev python3-docutils
+wget http://www.kernel.org/pub/linux/bluetooth/bluez-${version}.tar.xz
+tar -xvf bluez-${version}.tar.xz
+cd bluez-${version}/
+./configure --prefix=/usr/local # may be different... find out by doing `which bluetoothctl` on host
+make -j4
+sudo make install
+sudo reboot
+```
+Then, confirm your version with:
+`bluetoothctl --version`
+
+Then, start the docker containers configured to use a bluetooth speaker device. Watch the logs for failures.
+
 ## Roadmap
 
- * Pulseaudio 16 (currently included with snapbase, but needs to be added to snapclient dockerfile)
- * Better arm32/armv7l support. Currently, librespot does not work.
- * improved deployment process, likely bash script to name everything properly without manually editing docker-compose
- * More pulseaudio configurations via env variables
- * Add more streams than just spotfy/tts/notifications
- * Ability to add streams via env variable to snapserver
- * Include [latest bluez](https://github.com/bluez/bluez) in snapbase and include in snapclient for more updated bluetooth support. `latest bluez = 5.64`
-
+ * Remove snapbase and build client/server with alpine linux (for smaller/simpler images)
+ * Pulseaudio 16
+ * Better arm32/armv7l support. Currently, requires separate image
+ * Improved deployment process, likely bash script to name everything properly without manually editing docker-compose
+ * Add more streams than just spotify/tts/notifications
+ * Ability to add streams via env variable to server

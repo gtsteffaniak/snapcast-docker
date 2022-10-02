@@ -97,19 +97,14 @@ function withBluetooth() {
 	#printf "realtime-priority = 1\n" >> /etc/pulse/daemon.conf
 	pulseaudio --start
 	sleep 1
-	#sometimes you need to remove the device first when reconnecting
-	sudo bluetoothctl remove $device
 
-	################################################
-	# RUN with boosted volume and monitor for iss ues
-	################################################
 	echo "[INFO] Loading required modules..."
 	pactl load-module module-bluetooth-policy
 	pactl load-module module-bluetooth-discover
-	pactl unload-module module-alsa-card
-	pactl unload-module module-alsa-sink
+	sudo bluetoothctl remove $DEVICE
+
 	sudo expect -c '
-	set timeout 10
+	set timeout 20
 	set prompt "#"
 	set address '$DEVICE'
 	spawn bluetoothctl
@@ -118,10 +113,9 @@ function withBluetooth() {
 	send_user "\nWaiting for device.\r"
 	expect -re "\\\[NEW\\\] Device $address"
 	send_user "\nFound deivce.\r"
-	sleep 2
 	send "connect $address\r"
 	expect -re "Confirm passkey" { send "yes\r" }
-	sleep 3
+	sleep 1
 	send "trust $address\r"
 	send "scan off\r"
 	send "quit\r"
