@@ -1,4 +1,4 @@
-version: '2.2'
+version: '2.3' # warning: requires recent version of docker-compose
 services:
     server:
         container_name: snapcast_server_main
@@ -8,7 +8,6 @@ services:
         environment:
             - chunk_ms=30
             - buffer=1000
-            - host=gworker # replace with host
         image: 'gtstef/snapserver'
         #build:
         #    context: ./snapserver
@@ -18,7 +17,7 @@ services:
             test: ["CMD", "curl", "-f", "localhost:1780"]
             timeout: 5s
             retries: 3
-    cleanup_agent:
+    cleanupAgent:
         container_name: snapcast_server_cleanup_agent
         depends_on:
             server:
@@ -32,7 +31,8 @@ services:
         #    dockerfile: dockerfile.cleanup
         restart: "no"
 # First bluetooth device - depnds on server
-    client-kitchen:
+    kitchenSpeaker:
+        network_mode: host
         depends_on:
             server:
                 condition: service_healthy
@@ -47,7 +47,7 @@ services:
         environment:
             - DEVICE="A4:05:0A:19:90:16"
             - instance=1
-            - server=gworker
+            - server=gworker.ghome.net
             - USE_STEREO=false
             - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
@@ -61,7 +61,8 @@ services:
 # Second bluetooth device - depnds on first bluetooth device!
 # Two bluetooth devices on one host requires BT 5.0 host module.
 # Only certain devices support this, eg raspberry pi 4
-    client-bedroom:
+    bedroomSpeaker:
+        network_mode: host
         depends_on:
             server:
                 condition: service_healthy
@@ -76,7 +77,7 @@ services:
         environment:
             - DEVICE="F5:63:4B:0F:D4:8F"
             - instance=3  # make sure unique number - no other clients have!
-            - server=gworker # enter your own hostname
+            - server=gworker.ghome.net # enter your own hostname
             - USE_STEREO=false # if you want mono bluetooth
             - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
@@ -87,7 +88,8 @@ services:
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
-    tv:
+    tvSpeaker:
+        network_mode: host
         depends_on:
             server:
                 condition: service_healthy

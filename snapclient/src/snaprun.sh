@@ -114,15 +114,17 @@ function withBluetooth() {
 	expect -re "\\\[NEW\\\] Device $address"
 	send_user "\nFound deivce.\r"
 	send "connect $address\r"
+	sleep 2
 	expect -re "Confirm passkey" { send "yes\r" }
-	sleep 1
+	sleep 2
 	send "trust $address\r"
+	sleep 2
 	send "scan off\r"
 	send "quit\r"
 	expect eof
 	'
 
-	sleep 1
+	sleep 2
 	sed -i 's/device ".*/device "'$DEVICE'"/g' .asoundrc
 
 	getSink
@@ -137,6 +139,7 @@ function withBluetooth() {
 	# RUN with normal volume and monitor for issues
 	################################################
 	start_cmd &
+	sleep 20
 	monitor
 	################################################
 	################################################

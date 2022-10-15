@@ -1,4 +1,5 @@
 #!/bin/bash
+# recommmend using docker-compsoe instead if possible
 usage() {
 	echo "usage: ./bootstrap.sh
    flags:

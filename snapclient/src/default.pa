@@ -55,4 +55,5 @@
 
   ### Enable positioned event sounds
   load-module module-position-event-sounds
+  load-module module-switch-on-connect
 .fail
