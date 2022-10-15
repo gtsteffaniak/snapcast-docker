@@ -1,6 +1,6 @@
-FROM alpine:3.14 as librespot-builder
+FROM rust:alpine3.16 as librespot-builder
 WORKDIR /app
-ARG LIBRESPOT_VERSION=0.4.2 
+ARG LIBRESPOT_VERSION=0.4.2
 RUN apk add --no-cache alsa-lib-dev cargo curl
 RUN curl -sL "https://github.com/librespot-org/librespot/archive/refs/tags/v${LIBRESPOT_VERSION}.tar.gz" --output librespot.tar.gz && \
   mkdir /app/librespot-src && \
@@ -8,11 +8,11 @@ RUN curl -sL "https://github.com/librespot-org/librespot/archive/refs/tags/v${LI
 WORKDIR /app/librespot-src
 ENV CARGO_HOME=/app/cargo
 ENV RUSTFLAGS="-C target-feature=-crt-static"
-RUN cargo build --release --verbose
+RUN cargo build --release --verbose --features "alsa-backend"
 
-FROM alpine:3.14
+FROM alpine:3.16
 WORKDIR /opt
-RUN apk add --no-cache snapcast-server
+RUN apk add --no-cache snapcast-server bash mdp
 COPY --from=librespot-builder /app/librespot-src/target/release/librespot /usr/bin/librespot
 COPY src .
 RUN chmod 777 -R /opt/mpd
