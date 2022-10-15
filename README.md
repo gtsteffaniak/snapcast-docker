@@ -27,7 +27,7 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
      * Requires compatible hardware
      * Requires host to be running working bluez firmware (see more on this below)
    * pulseaudio 15 (using latest gtstef/snapclient)
-   * bluez 5.60    (using latest gtstef/snapclient)
+   * bluez 5.55    (using latest gtstef/snapclient)
 
 ## About
 

@@ -29,5 +29,6 @@ echo "Running with config:"
 cat /etc/snapserver.conf | egrep -o "buffer =.*|chunk_ms =.*|codec =.*"
 
 mv mpd.conf /etc/mpd.conf
+setcap -r /usr/bin/mpd
 mpd --no-daemon --stdout --verbose &
 snapserver
