@@ -1,10 +1,5 @@
 FROM alpine:3.16
-
-RUN apk add --update curl jq && \
-    rm -rf /var/cache/apk/*
-
+RUN apk add --no-cache curl jq
 COPY cleanup.sh .
-
 RUN chmod +x cleanup.sh
-
 CMD ["./cleanup.sh"]

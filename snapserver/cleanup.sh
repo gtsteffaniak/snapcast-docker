@@ -1,6 +1,6 @@
 #!/bin/sh
 while true; do
-    details=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"id": 1,"jsonrpc":"2.0","method":"Server.GetStatus"}' "http://"$server":1780/jsonrpc")
+    details=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"id": 1,"jsonrpc":"2.0","method":"Server.GetStatus"}' "http://server:1780/jsonrpc")
     clientlist=$(echo $details | jq '.result.server.groups[] .clients[]')
     disconnected_ids=$(echo $clientlist | jq 'select(.connected==false)' | jq .id)
     if [ ! -z "$disconnected_ids" ]; then

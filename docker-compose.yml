@@ -1,29 +1,23 @@
 version: '2.3' # warning: requires recent version of docker-compose
 services:
     server:
-        container_name: snapcast_server_main
         volumes:
             - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
         network_mode: host # easier than doing ports
         environment:
             - chunk_ms=30
             - buffer=1000
-        image: 'gtstef/snapserver'
+        image: 'gtstef/snapserver:alpine'
         #build:
         #    context: ./snapserver
         #    dockerfile: dockerfile
         restart: "unless-stopped"
         healthcheck:
             test: ["CMD", "curl", "-f", "localhost:1780"]
-            timeout: 20s
+            timeout: 30s
             retries: 3
     cleanupAgent:
-        container_name: snapcast_server_cleanup_agent
-        depends_on:
-            server:
-                condition: service_healthy
-        environment:
-            - host=gworker
+        depends_on: server
         network_mode: host
         image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
         #build:
