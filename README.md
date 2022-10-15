@@ -109,7 +109,7 @@ Since each bluez firmware and
 Simply compile and install new versions to the host with following:
 ```
 version="5.55"
-prefix=$(dirname $(which bluetoothctl))
+prefix=$(dirname $(dirname $(which bluetoothctl)))
 sudo apt install build-essential libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev python3-docutils
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-${version}.tar.xz
 tar -xvf bluez-${version}.tar.xz
