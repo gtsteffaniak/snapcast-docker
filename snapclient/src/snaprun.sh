@@ -2,6 +2,7 @@
 VOLUME="60%"          # intial bell volume
 LATENCY="125"         # default bluetooth latency/buffer ms !important string!
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
+: ${server:=server}
 ARGS=""
 echo "stereo setting: $USE_STEREO"
 if [ "$USE_STEREO" == "false" ]; then
@@ -116,9 +117,7 @@ function withBluetooth() {
 	send "connect $address\r"
 	sleep 2
 	expect -re "Confirm passkey" { send "yes\r" }
-	sleep 2
 	send "trust $address\r"
-	sleep 2
 	send "scan off\r"
 	send "quit\r"
 	expect eof

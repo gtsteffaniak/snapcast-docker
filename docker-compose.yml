@@ -1,41 +1,29 @@
-version: '2.3' # warning: requires recent version of docker-compose
+version: '3.6' # warning: requires recent version of docker-compose
 services:
     server:
         volumes:
             - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
-        network_mode: host # easier than doing ports
+            - '/var/run/dbus:/var/run/dbus'
+        network_mode: host
         environment:
             - chunk_ms=30
+            
             - buffer=1000
-        image: 'gtstef/snapserver:alpine'
-        #build:
-        #    context: ./snapserver
-        #    dockerfile: dockerfile
-        restart: "unless-stopped"
-        healthcheck:
-            test: ["CMD", "curl", "-f", "localhost:1780"]
-            timeout: 30s
-            retries: 3
+        image: 'gtstef/snapserver'
+        restart: "no"
     cleanupAgent:
-        depends_on: server
+        depends_on: [server]
         network_mode: host
-        image: 'gtstef/snapserver-cleanup-agent' # optional - build locally instead
-        #build:
-        #    context: ./snapserver
-        #    dockerfile: dockerfile.cleanup
+        image: 'gtstef/snapserver-cleanup-agent'
         restart: "unless-stopped"
 # First bluetooth device - depnds on server
     kitchenSpeaker:
         network_mode: host
-        depends_on:
-            server:
-                condition: service_healthy
+        depends_on: [server]
         hostname: kitchen
-        container_name: snapcast_client_kitchen-bt
         restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
-        devices:
             - /dev/snd
         privileged: true
         environment:
@@ -48,7 +36,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient'
+        image: 'gtstef/snapclient:0.3.0'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
@@ -57,12 +45,8 @@ services:
 # Only certain devices support this, eg raspberry pi 4
     bedroomSpeaker:
         network_mode: host
-        depends_on:
-            server:
-                condition: service_healthy
+        depends_on: [kitchenSpeaker]
         hostname: bedroom
-        container_name: snapcast_client_bedroom-bt
-        restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
         devices:
@@ -71,24 +55,17 @@ services:
         environment:
             - DEVICE="F5:63:4B:0F:D4:8F"
             - instance=3  # make sure unique number - no other clients have!
-            - server=gworker.ghome.net # enter your own hostname
+            - server=gworker # enter your own hostname or eliminate this line if using snapserver from this config
             - USE_STEREO=false # if you want mono bluetooth
             - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
-        healthcheck:
-            test: ["CMD", "pgrep", "-f", "snapclient"]
-            timeout: 10s
-            retries: 3
-        image: 'gtstef/snapclient'
+        image: 'gtstef/snapclient:0.3.0'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
     tvSpeaker:
         network_mode: host
-        depends_on:
-            server:
-                condition: service_healthy
+        depends_on: [server]
         hostname: tv
-        container_name: snapcast_client_tv
         restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
