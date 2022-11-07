@@ -23,14 +23,17 @@ services:
         restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
+            - '/usr/share/dbus-1:/usr/share/dbus-1'
+        devices:
             - /dev/snd
+        privileged: true
         privileged: true
         environment:
             - DEVICE="A4:05:0A:19:90:16"
             - instance=1
             - server=gworker.ghome.net
             - USE_STEREO=false
-            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+            - LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
@@ -44,9 +47,10 @@ services:
 # Only certain devices support this, eg raspberry pi 4
     bedroomSpeaker:
         network_mode: host
-        depends_on: [kitchenSpeaker]
+        depends_on: [server]
         hostname: bedroom
         volumes:
+            - '/usr/share/dbus-1:/usr/share/dbus-1'
             - '/var/run/dbus:/var/run/dbus'
         devices:
             - /dev/snd

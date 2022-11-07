@@ -22,10 +22,10 @@ RUN apk --no-cache add \
     alsa-utils \
     alsa-lib \
     alsaconf \
-    avahi-libs \
-    avahi \
     snapcast-client
-
+    #dbus \
+    #avahi \
+    #avahi-libs \
 RUN adduser -S $USER -G $GROUPS
 
 RUN chmod 0655 -- /etc/pulse/* && \
@@ -37,13 +37,12 @@ RUN chmod 0655 -- /etc/pulse/* && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
     chmod 0440 /etc/sudoers.d/$USER
 
-USER $USER
 WORKDIR $HOME
-
 COPY --chown=$USER:$GROUPS [ "src/.asoundrc*", "src/*.wav", "./" ]
 COPY --chown=$USER:$GROUPS [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
 COPY --chown=$USER:$GROUPS [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
 COPY --chown=$USER:$GROUPS ["src/snaprun.sh", "./"]
 RUN sudo chmod +x snaprun.sh
+USER $USER
 
 ENTRYPOINT ["./snaprun.sh"]
