@@ -23,10 +23,9 @@ services:
         restart: "no"
         volumes:
             - '/var/run/dbus:/var/run/dbus'
-            - '/usr/share/dbus-1:/usr/share/dbus-1'
+              #- '/usr/share/dbus-1:/usr/share/dbus-1'
         devices:
             - /dev/snd
-        privileged: true
         privileged: true
         environment:
             - DEVICE="A4:05:0A:19:90:16"
@@ -50,7 +49,7 @@ services:
         depends_on: [server]
         hostname: bedroom
         volumes:
-            - '/usr/share/dbus-1:/usr/share/dbus-1'
+            #- '/usr/share/dbus-1:/usr/share/dbus-1'
             - '/var/run/dbus:/var/run/dbus'
         devices:
             - /dev/snd
@@ -60,7 +59,7 @@ services:
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname or eliminate this line if using snapserver from this config
             - USE_STEREO=false # if you want mono bluetooth
-            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+            - LATENCY=120 #  buffer/latency (each bt is diff)
         image: 'gtstef/snapclient'
         #build:
         #    context: ./snapclient
@@ -83,7 +82,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
             retries: 1
-        image: 'gtstef/snapclient'
+        image: 'gtstef/snapclient:0.3.0'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
