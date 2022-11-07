@@ -1,5 +1,5 @@
 FROM gtstef/librespot:0.4.2 as librespot
-FROM ubuntu:latest
+FROM ubuntu:22.10
 ENV DEBIAN_FRONTEND=noninteractive
 RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
 RUN apt update && apt install -y \

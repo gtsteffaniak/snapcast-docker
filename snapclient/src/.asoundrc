@@ -2,7 +2,7 @@ defaults.bluealsa {
      interface hci0
      device "14:C1:4E:B3:D0:D9"
      profile "a2dp"
-     delay "120000"
+     delay 120000
 }
 pcm.btreceiver {
     type plug
