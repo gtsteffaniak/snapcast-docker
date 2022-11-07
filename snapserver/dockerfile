@@ -1,17 +1,17 @@
-# Snapserver dockerfile
-
-FROM gtstef/snapbase as base
-
-FROM ubuntu:22.10
+FROM gtstef/librespot:0.4.2 as librespot
+FROM ubuntu:latest
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt install \
-    libavahi-client-dev avahi-daemon mpd \
-    curl -y --no-install-recommends
+RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
+RUN apt update && apt install -y \
+    libavahi-client-dev \
+    avahi-daemon \
+    mdp \
+    snapserver \
+    curl
+
 WORKDIR /opt
+COPY --from=librespot /usr/local/bin/ /usr/local/bin/
 COPY src .
-COPY --from=base /usr/local/bin/ /usr/local/bin/
-COPY --from=base /opt/snapcast/server/snapserver /usr/local/bin/
 RUN chmod 777 -R /opt/mpd
 RUN chmod +x run.sh
-
 ENTRYPOINT ["./run.sh"]

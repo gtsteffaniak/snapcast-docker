@@ -7,7 +7,6 @@ services:
         network_mode: host
         environment:
             - chunk_ms=30
-            
             - buffer=1000
         image: 'gtstef/snapserver'
         restart: "no"
@@ -36,7 +35,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
             retries: 3
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
@@ -58,7 +57,7 @@ services:
             - server=gworker # enter your own hostname or eliminate this line if using snapserver from this config
             - USE_STEREO=false # if you want mono bluetooth
             - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile

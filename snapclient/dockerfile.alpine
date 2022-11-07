@@ -1,5 +1,5 @@
 #FROM gtstef/snapbase:alpine as base
-FROM alpine:3.16
+FROM alpine:edge
 
 # Define a user under which the pulseaudio server will be running
 ENV USER pulseaudio
@@ -7,10 +7,24 @@ ENV UID 1000
 ENV GROUPS audio
 ENV HOME /home/$USER
 RUN apk --no-cache add \
-    bash curl procps netcat-openbsd expect sudo \
-    pulseaudio pulseaudio-bluez pulseaudio-utils \
-    bluez-dev bluez-alsa bluez alsa-utils alsa-lib alsaconf \
-    avahi-libs avahi snapcast-client
+    bash \
+    curl \
+    procps \
+    netcat-openbsd \
+    expect \
+    sudo \
+    pulseaudio \
+    pulseaudio-bluez \
+    pulseaudio-utils \
+    bluez-dev \
+    bluez-alsa \
+    bluez \
+    alsa-utils \
+    alsa-lib \
+    alsaconf \
+    avahi-libs \
+    avahi \
+    snapcast-client
 
 RUN adduser -S $USER -G $GROUPS
 
@@ -26,12 +40,10 @@ RUN chmod 0655 -- /etc/pulse/* && \
 USER $USER
 WORKDIR $HOME
 
-COPY [ "src/.asoundrc*", "src/*.wav", "./" ]
-COPY [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
-COPY [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
-COPY src/snaprun.sh .
+COPY --chown=$USER:$GROUPS [ "src/.asoundrc*", "src/*.wav", "./" ]
+COPY --chown=$USER:$GROUPS [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
+COPY --chown=$USER:$GROUPS [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
+COPY --chown=$USER:$GROUPS ["src/snaprun.sh", "./"]
 RUN sudo chmod +x snaprun.sh
-RUN sudo chown $USER:$GROUPS -R .
-RUN sudo chown $USER:$GROUPS /etc/pulse/daemon.conf
 
 ENTRYPOINT ["./snaprun.sh"]

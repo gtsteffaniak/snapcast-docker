@@ -89,7 +89,7 @@ function withBluetooth() {
 	pulseaudio --k
 	# start with bluetooth device
 	# Latency value tries to sync with sound, but may need to be higher or lower
-	ARGS="$ARGS --latency=$AUDIO_LATENCY --logsink null"
+	ARGS="$ARGS --latency=$LATENCY --logsink null"
 	#ARGS="$ARGS -s 3"
 
 	printf "\ndefault-fragments = 10\n" >>/etc/pulse/daemon.conf
@@ -102,10 +102,12 @@ function withBluetooth() {
 	echo "[INFO] Loading required modules..."
 	pactl load-module module-bluetooth-policy
 	pactl load-module module-bluetooth-discover
-	sudo bluetoothctl remove $DEVICE
+	sleep 1
+	eval sudo bluetoothctl remove $DEVICE
+	sleep 1
 
 	sudo expect -c '
-	set timeout 20
+	set timeout 10
 	set prompt "#"
 	set address '$DEVICE'
 	spawn bluetoothctl
@@ -123,23 +125,21 @@ function withBluetooth() {
 	expect eof
 	'
 
-	sleep 2
-	sed -i 's/device ".*/device "'$DEVICE'"/g' .asoundrc
+	sleep 1
+	sed -i 's/device.*/device '$DEVICE'/g' .asoundrc
 
 	getSink
 	# pactl send-message /card/$CARD/bluez switch-codec '"sbc_xq_552"'
 	# force sbc codec... issues occur with other codecs.
 	pactl send-message /card/$CARD/bluez switch-codec '"sbc"'
 	# for stability
-	pactl set-port-latency-offset $CARD headset-output 100000 
+	pactl set-port-latency-offset $CARD headset-output 100000
 	aplay long_bel.wav
 	VOLUME="125%" # default volume boost
 	################################################
 	# RUN with normal volume and monitor for issues
 	################################################
-	start_cmd &
-	sleep 20
-	monitor
+	start_cmd 
 	################################################
 	################################################
 

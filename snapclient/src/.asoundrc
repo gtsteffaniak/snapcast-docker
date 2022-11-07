@@ -1,24 +1,21 @@
-# Bluetooth headset
 defaults.bluealsa {
-     interface "hci0"            # host Bluetooth adapter
+     interface hci0
      device "14:C1:4E:B3:D0:D9"
      profile "a2dp"
      delay "120000"
 }
-
-pcm.bt{
-        type plug
-        slave.pcm {
-                type bluealsa
-                device "14:C1:4E:B3:D0:D9"
-                profile "a2dp"
-        }
-        hint {
-                show on
-                description "Bluetooth Audio ALSA Backend"
-        }
+pcm.btreceiver {
+    type plug
+    slave.pcm {
+        type bluealsa
+        device "14:C1:4E:B3:D0:D9"
+        profile "a2dp"
+    }
+}
+ctl.!default {
+        type bluealsa
 }
 pcm.!default {
     type plug
-    slave.pcm "bt"
+    slave.pcm "btreceiver"
 }
