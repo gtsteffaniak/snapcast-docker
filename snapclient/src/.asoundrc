@@ -1,11 +1,26 @@
-pcm.!default {
-    type plug
-    slave.pcm "btreceiver"
-}
 defaults.bluealsa {
-    service "org.bluealsa"
-    device "14:C1:4E:B3:D0:D9"
-    profile "a2dp"
+     interface "hci0"
+     device "14:C1:4E:B3:D0:D9"
+     profile "a2dp"
 }
 
-defaults.!pcm {	type plug; slave.pcm "bluealsa"};
+pcm.bt{
+        type plug
+        slave.pcm {
+                type bluealsa
+                device "14:C1:4E:B3:D0:D9"
+                profile "a2dp"
+        }
+        hint {
+                show on
+                description "Bluetooth Audio ALSA Backend"
+        }
+}
+pcm.!default {
+    type plug
+    slave.pcm "bt"
+}
+ctl.!default {
+        type hw
+        card 0
+}

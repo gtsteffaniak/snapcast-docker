@@ -1,8 +1,7 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-LATENCY="125"         # default bluetooth latency/buffer ms !important string!
+: ${AUDIO_LATENCY:=100}  # default bluetooth latency/buffer ms !important   
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
-: ${server:=server}
 ARGS=""
 echo "stereo setting: $USE_STEREO"
 if [ "$USE_STEREO" == "false" ]; then
@@ -89,7 +88,7 @@ function withBluetooth() {
 	pulseaudio --k
 	# start with bluetooth device
 	# Latency value tries to sync with sound, but may need to be higher or lower
-	ARGS="$ARGS --latency=$LATENCY --logsink null"
+	ARGS="$ARGS --latency=$AUDIO_LATENCY --logsink null"
 	#ARGS="$ARGS -s 3"
 
 	printf "\ndefault-fragments = 10\n" >>/etc/pulse/daemon.conf
@@ -99,12 +98,15 @@ function withBluetooth() {
 	pulseaudio --start
 	sleep 1
 
+	################################################
+	# RUN with boosted volume and monitor for issues
+	################################################
+	eval sudo bluetoothctl remove $DEVICE
 	echo "[INFO] Loading required modules..."
 	pactl load-module module-bluetooth-policy
 	pactl load-module module-bluetooth-discover
-	sleep 1
-	eval sudo bluetoothctl remove $DEVICE
-	sleep 1
+	pactl unload-module module-alsa-card
+	pactl unload-module module-alsa-sink
 
 	sudo expect -c '
 	set timeout 10
@@ -117,7 +119,6 @@ function withBluetooth() {
 	expect -re "\\\[NEW\\\] Device $address"
 	send_user "\nFound deivce.\r"
 	send "connect $address\r"
-	sleep 2
 	expect -re "Confirm passkey" { send "yes\r" }
 	send "trust $address\r"
 	send "scan off\r"
@@ -126,7 +127,7 @@ function withBluetooth() {
 	'
 
 	sleep 1
-	sed -i 's/device.*/device '$DEVICE'/g' .asoundrc
+	sed -i 's/device ".*/device "'$DEVICE'"/g' .asoundrc
 
 	getSink
 	# pactl send-message /card/$CARD/bluez switch-codec '"sbc_xq_552"'
@@ -139,7 +140,8 @@ function withBluetooth() {
 	################################################
 	# RUN with normal volume and monitor for issues
 	################################################
-	start_cmd 
+	start_cmd &
+	monitor
 	################################################
 	################################################
 

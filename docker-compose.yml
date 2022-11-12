@@ -32,7 +32,7 @@ services:
             - instance=1
             - server=gworker.ghome.net
             - USE_STEREO=false
-            - LATENCY=120 #  buffer/latency (each bt is diff)
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 10s
@@ -59,7 +59,7 @@ services:
             - instance=3  # make sure unique number - no other clients have!
             - server=gworker # enter your own hostname or eliminate this line if using snapserver from this config
             - USE_STEREO=false # if you want mono bluetooth
-            - LATENCY=120 #  buffer/latency (each bt is diff)
+            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
         image: 'gtstef/snapclient'
         #build:
         #    context: ./snapclient
@@ -82,7 +82,7 @@ services:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
             retries: 1
-        image: 'gtstef/snapclient:0.3.0'
+        image: 'gtstef/snapclient'
         #build:
         #    context: ./snapclient
         #    dockerfile: dockerfile
