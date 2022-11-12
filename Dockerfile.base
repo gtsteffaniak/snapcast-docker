@@ -1,0 +1,32 @@
+FROM ubuntu:21.10 as base
+ENV DEBIAN_FRONTEND=noninteractive
+RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
+RUN sed -i 's/ports.ubuntu.com\/ubuntu-ports/old-releases.ubuntu.com\/ubuntu/g' /etc/apt/sources.list \
+    && sed -i 's/archive.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list \
+    && sed -i 's/security.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list
+# general build requirements
+RUN apt update && apt -y install build-essential git \
+        libboost-dev libopus-dev libvorbisidec-dev \
+        libvorbis-dev libflac-dev libasound2-dev libpulse-dev libsoxr-dev \
+        alsa-utils libavahi-client-dev avahi-daemon
+
+## pulseaudio requirements
+RUN apt update && apt install -y curl \
+        libfdk-aac-dev libavcodec-dev libpulse-dev libsndfile-dev \
+        libdbus-1-dev libsbc-dev libtdb-dev check \
+        libltdl-dev libbluetooth-dev doxygen \
+        python3 python3-pip python3-setuptools \
+        python3-wheel ninja-build cmake libspeexdsp-dev
+
+## pulseaudio requirements
+RUN apt update && apt install -y curl xmltoman libudev-dev libevdev-dev libsystemd-dev libglib2.0-dev \
+        libjson-glib-dev libunistring-dev check valgrind swig
+
+WORKDIR /opt
+RUN git clone https://github.com/badaix/snapcast.git
+WORKDIR /opt/snapcast
+RUN make -j4 client server
+
+FROM ubuntu:20.04
+COPY --from=base /opt/snapcast/client/snapclient /opt/snapcast/client/snapclient
+COPY --from=base /opt/snapcast/server/snapserver /opt/snapcast/server/snapserver
