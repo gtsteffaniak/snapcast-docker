@@ -42,6 +42,8 @@ multi device configurations. Or to use server and client on same device, you can
 run the all-in-one docker-compose.yml file to start server and client devices
 running on the same device.
 
+Note: You may need to terminate pulseaudio daemon on the host in order to use the container. This can be done via `pulseaudio -k`
+
  Using docker-compose:
    * Update docker-compose host to match your environment
    * run `docker-compose up -d` on main directory
