@@ -26,6 +26,8 @@ This requires a running snapcast server (snapserver). View
 
 You can either use the bootstrap.sh or docker-compose.
 
+Note: you may need to kill pulseaudio on host for this to work, eg run `pulseaudio -k` on host.
+
 1. Using bootstrap.sh (client init):
    * Firstly, get the server running, either of the following options:
       * (preferred) navigate to `./snapserver` and initiate `docker-compose up -d`
