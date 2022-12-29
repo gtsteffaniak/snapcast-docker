@@ -72,60 +72,6 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
  ⠿ Network snapcast-docker_default            Removed
 ```
 
-## bluez performance
-
-Linux bluez firmware is essential for running bluetooth on linux. The differences between bluez versions is substantial. Not only is there big differences in features (such as codec support), theres also general stability and quality of A2DP streaming. Here is a table of my experience:
-
-### Raspberry pi 4 (Debian)
-| bluez version   | supported # of streams |  runtime stability | crash frequency |
-|-----------------|:--------------------:|-------------------:|----------------:|
-| 5.55            |  1 stream | ok | low
-| 5.56            |  does not pair                 |                    |                 |
-| 5.57            |  does not pair                 |                    |                 |
-| 5.58            |  does not pair                 |                    |                 |
-| 5.59            |  1 stream | poor | high |
-| 5.60            |  1 stream | poor | high |
-| 5.61            |  does not pair                  |                    |                 |
-| 5.62            |  1 stream                 |              ok      |       high          |
-| 5.63            |  fails to start bluez                 |                    |                 |
-| 5.64            |  fails to start bluez                 |                    |                 |
-| 5.65            |  not yet released    |                    |                 |
-
-### Debian with intel ax210
-| bluez version   | support for multiple |  runtime stability | crash frequency |
-|-----------------|:--------------------:|-------------------:|----------------:|
-| 5.55            |  TBD                 |                    |                 |
-| 5.56            |  TBD                 |                    |                 |
-| 5.57            |  TBD                 |                    |                 |
-| 5.58            |  TBD                 |                    |                 |
-| 5.59            |  TBD                 |                    |                 |
-| 5.60            |  TBD                 |                    |                 |
-| 5.61            |  TBD                 |                    |                 |
-| 5.62            |  TBD                 |                    |                 |
-| 5.63            |  TBD                 |                    |                 |
-| 5.64            |  TBD                 |                    |                 |
-| 5.65            |  not yet released    |                    |                 |
-### How to test bluez versions
-
-Since each bluez firmware and
-Simply compile and install new versions to the host with following:
-```
-version="5.55"
-prefix=$(dirname $(dirname $(which bluetoothctl)))
-sudo apt install build-essential libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev python3-docutils
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-${version}.tar.xz
-tar -xvf bluez-${version}.tar.xz
-cd bluez-${version}/
-./configure --prefix="$prefix"
-make -j4
-sudo make install
-sudo reboot
-```
-Then, confirm your version with:
-`bluetoothctl --version`
-
-Then, start the docker containers configured to use a bluetooth speaker device. Watch the logs for failures.
-
 ## Roadmap
 
  * Remove snapbase and build client/server with alpine linux (for smaller/simpler images)
