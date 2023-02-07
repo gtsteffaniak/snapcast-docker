@@ -24,31 +24,6 @@ You can either use the bootstrap.sh or docker-compose.
 
 Note: you may need to kill pulseaudio on host for this to work, eg run `pulseaudio -k` on host.
 
-1. Using bootstrap.sh (client init):
-   * Firstly, get the server running, either of the following options:
-      * (preferred) navigate to `./snapserver` and initiate `docker-compose up -d`
-      * or use `docker run` by running `docker run -d --net host -v '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket' -name snapserver gtstef/snapserver`
-   * Run `./bootstrap.sh`, examples
-      * `./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9 -h snapserver-ip-or-hostname `
-      * `./bootstrap.sh -n local-audio -h localhost `
-```
-usage: ./bootstrap.sh
-   flags:
-        -n [name of client speaker]
-   optional:
-        -d [bluetooth mac]
-        -r (specifies to remove/recreate existing container)
-        -i (specifies instance/ip... fix ip conflicts)
-        -h snapserver ip/hostame manual assignment
-        -v version of docker image (leave blank for latest)
-        -m disable stereo ( enable for mono bt speaker)
-
-examples:
-        # create single client local speaker device (ie: headphone jack speaker)
-        ./bootstrap.sh -n my-speaker
-        # create bluetooth speaker (will begin pairing process)
-        ./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9
-```
  1. Using docker-compose:
    * Update docker-compose host to match your environment
    * run `docker-compose up -d` on main directory
@@ -77,7 +52,31 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
  ⠿ Network snapcast-docker_default            Removed
 ```
 
+1. [deprecated..] Using bootstrap.sh (client init):
+   * Firstly, get the server running, either of the following options:
+      * (preferred) navigate to `./snapserver` and initiate `docker-compose up -d`
+      * or use `docker run` by running `docker run -d --net host -v '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket' -name snapserver gtstef/snapserver`
+   * [deprecated..] Run `./bootstrap.sh`, examples
+      * `./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9 -h snapserver-ip-or-hostname `
+      * `./bootstrap.sh -n local-audio -h localhost `
+```
+usage: ./bootstrap.sh
+   flags:
+        -n [name of client speaker]
+   optional:
+        -d [bluetooth mac]
+        -r (specifies to remove/recreate existing container)
+        -i (specifies instance/ip... fix ip conflicts)
+        -h snapserver ip/hostame manual assignment
+        -v version of docker image (leave blank for latest)
+        -m disable stereo ( enable for mono bt speaker)
 
+examples:
+        # create single client local speaker device (ie: headphone jack speaker)
+        ./bootstrap.sh -n my-speaker
+        # create bluetooth speaker (will begin pairing process)
+        ./bootstrap.sh -n my-wireless-speaker -d 14:C1:4E:B3:D0:D9
+```
 ## bluez performance
 
 Linux bluez firmware is essential for running bluetooth on linux. The differences between bluez versions is substantial. Not only is there big differences in features (such as codec support), theres also general stability and quality of A2DP streaming. Here is a table of my experience:
