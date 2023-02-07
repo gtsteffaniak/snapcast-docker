@@ -5,19 +5,15 @@ This requires a running snapcast server (snapserver). View
 [snapserver](../snapserver/README.md) for more information.
 
 ## Snapcast Client
-* can be started two ways:
-   * via bootstrap.sh
-   * via docker-compose.yml
+
 * multiple arch files
-   * arm64
-   * arm32
-   * amd64
+   * arm64 / arm32 / amd64
    * or build your own
 * bluetooth support
    * Requires compatible hardware
    * Requires host to be running working firmware
-* pulseaudio 15 (using latest gtstef/snapclient)
-* bluez 5.60    (using latest gtstef/snapclient)
+* pulseaudio 15.99.1 (using latest gtstef/snapclient)
+* bluez 5.64    (using latest gtstef/snapclient)
 
 * Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
 * Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
@@ -86,35 +82,6 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
 
 Linux bluez firmware is essential for running bluetooth on linux. The differences between bluez versions is substantial. Not only is there big differences in features (such as codec support), theres also general stability and quality of A2DP streaming. Here is a table of my experience:
 
-### Raspberry pi 4 (Debian)
-| bluez version   | supported # of streams |  runtime stability | crash frequency |
-|-----------------|:--------------------:|-------------------:|----------------:|
-| 5.55            |  1 stream | ok | low
-| 5.56            |  does not pair                 |                    |                 |
-| 5.57            |  does not pair                 |                    |                 |
-| 5.58            |  does not pair                 |                    |                 |
-| 5.59            |  1 stream | poor | high |
-| 5.60            |  1 stream | poor | high |
-| 5.61            |  does not pair                  |                    |                 |
-| 5.62            |  1 stream                 |              ok      |       high          |
-| 5.63            |  fails to start bluez                 |                    |                 |
-| 5.64            |  fails to start bluez                 |                    |                 |
-| 5.65            |  not yet released    |                    |                 |
-
-### Debian with intel ax210
-| bluez version   | support for multiple |  runtime stability | crash frequency |
-|-----------------|:--------------------:|-------------------:|----------------:|
-| 5.55            |  TBD                 |                    |                 |
-| 5.56            |  TBD                 |                    |                 |
-| 5.57            |  TBD                 |                    |                 |
-| 5.58            |  TBD                 |                    |                 |
-| 5.59            |  TBD                 |                    |                 |
-| 5.60            |  TBD                 |                    |                 |
-| 5.61            |  TBD                 |                    |                 |
-| 5.62            |  TBD                 |                    |                 |
-| 5.63            |  TBD                 |                    |                 |
-| 5.64            |  TBD                 |                    |                 |
-| 5.65            |  not yet released    |                    |                 |
 ### How to test bluez versions
 
 Since each bluez firmware and
