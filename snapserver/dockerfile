@@ -1,22 +1,11 @@
-FROM gtstef/librespot:0.4.1 as librespot
-FROM gtstef/snapbase as base
-FROM ubuntu:21.10
-RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
-RUN sed -i 's/ports.ubuntu.com\/ubuntu-ports/old-releases.ubuntu.com\/ubuntu/g' /etc/apt/sources.list \
-    && sed -i 's/archive.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list \
-    && sed -i 's/security.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list
-ENV DEBIAN_FRONTEND=noninteractive
-RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
-RUN apt update && apt install -y --no-install-recommends \
-    libavahi-client-dev \
-    avahi-daemon \
-    mpd \
-    snapserver \
-    curl
-
+FROM tmigone/librespot:0.3.1 as librespot
+FROM alpine:edge
 WORKDIR /opt
-COPY --from=librespot /usr/local/bin/librespot /usr/local/bin/
-COPY --from=base /opt/snapcast/server/snapserver /usr/local/bin/
+RUN apk add --no-cache \
+        snapcast-server \
+        curl \
+        mpd
+COPY --from=librespot /usr/bin/librespot /usr/local/bin/
 COPY src .
 RUN chmod 777 -R /opt/mpd
 RUN chmod +x run.sh

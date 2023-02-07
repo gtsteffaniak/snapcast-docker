@@ -3,13 +3,10 @@ FROM alpine:edge
 
 # Define a user under which the pulseaudio server will be running
 ENV USER pulseaudio
-ENV UID 1000
 ENV GROUPS audio
+ENV UID 1000
 ENV HOME /home/$USER
 RUN apk --no-cache add \
-    bash \
-    curl \
-    procps \
     netcat-openbsd \
     expect \
     sudo \
@@ -22,27 +19,24 @@ RUN apk --no-cache add \
     alsa-utils \
     alsa-lib \
     alsaconf \
-    snapcast-client
-    #dbus \
-    #avahi \
-    #avahi-libs \
-RUN adduser -S $USER -G $GROUPS
-
-RUN chmod 0655 -- /etc/pulse/* && \
+    snapcast-client 
+RUN addgroup -S -g 1000 $USER 
+RUN adduser -S -D -u 1000 -s /sbin/nologin -h $HOME -G $GROUPS $USER && \
+    mkdir -p /etc/sudoers.d && \
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER && \
+    chmod 0440 /etc/sudoers.d/$USER && \
+    chmod 0655 -- /etc/pulse/* && \
     mkdir -p $HOME/.config/pulse && \
-    chown -Rh $USER:$GROUPS -- $HOME && \
-    echo "$USER:x:${GROUPS}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd && \
-    echo "$USER:x:${GROUPS}:" >>/etc/group && \
+    chown -Rh $USER:$USER -- $HOME && \
+    echo "$USER:x:${uid}:${gid}:$USER,,,:/home/$USER:/bin/bash" >>/etc/passwd && \
+    echo "$USER:x:${uid}:" >>/etc/group && \
     mkdir -p /etc/sudoers.d && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
-    chmod 0440 /etc/sudoers.d/$USER
-
-WORKDIR $HOME
-COPY --chown=$USER:$GROUPS [ "src/.asoundrc*", "src/*.wav", "./" ]
-COPY --chown=$USER:$GROUPS [ "src/main.conf", "src/audio.conf", "/etc/bluetooth/" ]
-COPY --chown=$USER:$GROUPS [ "src/default.pa", "src/daemon.conf", "/etc/pulse/" ]
-COPY --chown=$USER:$GROUPS ["src/snaprun.sh", "./"]
-RUN sudo chmod +x snaprun.sh
+    chmod 0440 /etc/sudoers.d/$USER 
 USER $USER
-
+WORKDIR $HOME
+COPY --chown=$USER:$USER [ "src/.asoundrc*", "src/*.wav",       "./"                ]
+COPY --chown=$USER:$USER [ "src/main.conf", "src/audio.conf",   "/etc/bluetooth/"   ]
+COPY --chown=$USER:$USER [ "src/default.pa", "src/daemon.conf", "/etc/pulse/"       ]
+COPY --chown=$USER:$USER [ "src/snaprun.sh",                    "./"                ]
 ENTRYPOINT ["./snaprun.sh"]

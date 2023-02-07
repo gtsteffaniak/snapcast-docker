@@ -1,19 +1,22 @@
 FROM gtstef/snapbase as base
-FROM ubuntu:21.10
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND noninteractive
-RUN printf '#!/bin/sh\nexit 0' >/usr/sbin/policy-rc.d
-RUN sed -i 's/ports.ubuntu.com\/ubuntu-ports/old-releases.ubuntu.com\/ubuntu/g' /etc/apt/sources.list \
-    && sed -i 's/archive.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list \
-    && sed -i 's/security.ubuntu/old-releases.ubuntu/g' /etc/apt/sources.list
 ENV USER pulseaudio
 ENV UID 1000
 ENV GROUPS audio
 ENV HOME /home/$USER
 RUN apt update && apt install -y --no-install-recommends \
-	procps netcat curl \
-	pulseaudio pulseaudio-module-bluetooth bluez alsa-utils \
-	libavahi-client-dev libbluetooth3 expect sudo \
-	&& apt clean && rm -rf /var/lib/apt/lists
+	procps \
+    netcat \
+	pulseaudio \
+    pulseaudio-module-bluetooth \
+    bluez \
+    alsa-utils \
+    libavahi-client-dev \
+    libbluetooth3 \
+    expect \
+    sudo && \
+    apt clean && rm -rf /var/lib/apt/lists
 RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
     usermod -aG $GROUPS $USER && \
     chmod 0655 -- /etc/pulse/* && \
@@ -23,15 +26,13 @@ RUN useradd -u $UID -m -d $HOME -s /usr/sbin/nologin $USER && \
     echo "$USER:x:${uid}:" >>/etc/group && \
     mkdir -p /etc/sudoers.d && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/$USER && \
-    chmod 0440 /etc/sudoers.d/$USER && \
-    chsh -s /bin/bash $USER
+    chmod 0440 /etc/sudoers.d/$USER
 USER $USER
 WORKDIR $HOME
-COPY --from=base --chown=root:$USER \
-     [ "/opt/snapcast/client/snapclient",   "/usr/bin/"         ]
-COPY [ "src/.asoundrc*", "src/*.wav",       "./"                ]
-COPY [ "src/main.conf", "src/audio.conf",   "/etc/bluetooth/"   ]
-COPY [ "src/default.pa", "src/daemon.conf", "/etc/pulse/"       ]
-COPY [ "src/snaprun.sh",                    "./"                ]
+COPY --from=base --chown=root:$USER [ "/opt/snapcast/client/snapclient",   "/usr/bin/"         ]
+COPY --chown=$USER:$USER [ "src/.asoundrc*", "src/*.wav",       "./"                ]
+COPY --chown=$USER:$USER [ "src/main.conf", "src/audio.conf",   "/etc/bluetooth/"   ]
+COPY --chown=$USER:$USER [ "src/default.pa", "src/daemon.conf", "/etc/pulse/"       ]
+COPY --chown=$USER:$USER [ "src/snaprun.sh",                    "./"                ]
 RUN sudo chown $USER:$USER /etc/pulse/daemon.conf
 ENTRYPOINT ["./snaprun.sh"]

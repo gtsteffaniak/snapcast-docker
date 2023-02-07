@@ -1,14 +1,16 @@
 version: '3.6' # warning: requires recent version of docker-compose
 services:
     server:
-        volumes:
-            - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
-            - '/var/run/dbus:/var/run/dbus'
+        hostname: snapcast_server
         network_mode: host
+        volumes:
+            - '/var/run/dbus:/var/run/dbus'
+            - '/var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket'
         environment:
-            - chunk_ms=30
+            - chunk_ms=40
             - buffer=1000
-        image: 'gtstef/snapserver'
+            - codec=flac
+        image: 'gtstef/snapserver:0.4.0' # new alpine snapserver based on 0.27
         restart: "no"
     cleanupAgent:
         depends_on: [server]
@@ -16,67 +18,66 @@ services:
         image: 'gtstef/snapserver-cleanup-agent'
         restart: "unless-stopped"
 # First bluetooth device - depnds on server
-    kitchenSpeaker:
-        network_mode: host
-        depends_on: [server]
-        hostname: kitchen
-        restart: "no"
-        volumes:
-            - '/var/run/dbus:/var/run/dbus'
-              #- '/usr/share/dbus-1:/usr/share/dbus-1'
-        devices:
-            - /dev/snd
-        privileged: true
-        environment:
-            - DEVICE="A4:05:0A:19:90:16"
-            - instance=1
-            - server=gworker.ghome.net
-            - USE_STEREO=false
-            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
-        healthcheck:
-            test: ["CMD", "pgrep", "-f", "snapclient"]
-            timeout: 10s
-            retries: 3
-        image: 'gtstef/snapclient'
-        #build:
-        #    context: ./snapclient
-        #    dockerfile: dockerfile
+#    kitchenSpeaker:
+#        network_mode: host
+#        depends_on: [server]
+#        hostname: kitchen
+#        restart: "no"
+#        volumes:
+#            - '/var/run/dbus:/var/run/dbus'
+#              #- '/usr/share/dbus-1:/usr/share/dbus-1'
+#        devices:
+#            - /dev/snd
+#        privileged: true
+#        environment:
+#            - DEVICE="A4:05:0A:19:90:16"
+#            - instance=1
+#            - server=gworker.ghome.net
+#            - USE_STEREO=false
+#            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+#        healthcheck:
+#            test: ["CMD", "pgrep", "-f", "snapclient"]
+#            timeout: 10s
+#            retries: 3
+#        image: 'gtstef/snapclient'
+#        #build:
+#        #    context: ./snapclient
+#        #    dockerfile: dockerfile
 # Second bluetooth device - depnds on first bluetooth device!
 # Two bluetooth devices on one host requires BT 5.0 host module.
 # Only certain devices support this, eg raspberry pi 4
-    bedroomSpeaker:
-        network_mode: host
+    kitchen_speaker:
+        hostname: kitchen
         depends_on: [server]
-        hostname: bedroom
         volumes:
-            #- '/usr/share/dbus-1:/usr/share/dbus-1'
+            - '/usr/share/dbus-1:/usr/share/dbus-1'
             - '/var/run/dbus:/var/run/dbus'
         devices:
             - /dev/snd
         privileged: true
         environment:
             - DEVICE="F5:63:4B:0F:D4:8F"
-            - instance=3  # make sure unique number - no other clients have!
-            - server=gworker # enter your own hostname or eliminate this line if using snapserver from this config
+            - INSTANCE=3  # make sure unique number - no other clients have!
+            - SNAPCAST_SERVER=gworker
             - USE_STEREO=false # if you want mono bluetooth
-            - AUDIO_LATENCY=120 #  buffer/latency (each bt is diff)
+            - AUDIO_LATENCY=200 #  buffer/latency (each bt is diff)
         image: 'gtstef/snapclient'
         #build:
-        #    context: ./snapclient
-        #    dockerfile: dockerfile
-    tvSpeaker:
-        network_mode: host
+            #context: ./snapclient
+            #dockerfile: dockerfile
+    living_room:
+        hostname: living_room
         depends_on: [server]
-        hostname: tv
         restart: "no"
         volumes:
+            - '/usr/share/dbus-1:/usr/share/dbus-1'
             - '/var/run/dbus:/var/run/dbus'
         devices:
             - /dev/snd
         privileged: true
         environment:
-            - instance=2
-            - server=gworker
+            - INSTANCE=3  # make sure unique number - no other clients have!
+            - SNAPCAST_SERVER=gworker
             - USE_STEREO=true
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
@@ -84,5 +85,5 @@ services:
             retries: 1
         image: 'gtstef/snapclient'
         #build:
-        #    context: ./snapclient
-        #    dockerfile: dockerfile
+            #context: ./snapclient
+            #dockerfile: dockerfile

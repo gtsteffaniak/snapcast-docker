@@ -5,6 +5,10 @@ information related to running each client instance, view the
 [snapcast client](../snapclient/README.md) section.
 
 ### Snapcast Server
+
+1. Firstly, please install avahi-daemon on host:
+   * `sudo apt install avahi-daemon`
+
 * Can be started two ways:
    * docker run
    * docker-compose.yml

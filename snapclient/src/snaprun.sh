@@ -2,6 +2,7 @@
 VOLUME="60%"          # intial bell volume
 : ${AUDIO_LATENCY:=100}  # default bluetooth latency/buffer ms !important   
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
+: ${SNAPCAST_SERVER=server} # default host "server" running with docker-compose
 ARGS=""
 echo "stereo setting: $USE_STEREO"
 if [ "$USE_STEREO" == "false" ]; then
@@ -43,12 +44,13 @@ function monitor {
 		fi
 		last_check="$cpu_usage"
 		sleep 10
-		nc -vz "$server" 1704 >/dev/null 2>&1
+		nc -vz "$SNAPCAST_SERVER" 1704 >/dev/null 2>&1
 		serverconnection=$?
 		if [[ "$serverconnection" -ne 0 ]]; then
-			echo "[WARN] Host $server cannot be connected or resolved."
+			echo "[WARN] Host $SNAPCAST_SERVER cannot be connected or resolved."
 		fi
 	done
+	
 }
 function getSink() {
 	if [ -z "$DEVICE" ]; then
@@ -74,8 +76,8 @@ function noBluetooth() {
 	sleep 1
 	pactl load-module module-alsa-sink
 	pactl load-module module-alsa-card
-	printf "\ndefault-fragments = 3\n" >>/etc/pulse/daemon.conf
-	printf "default-fragment-size-msec = 5\n" >>/etc/pulse/daemon.conf
+	printf "\ndefault-fragments = 10\n" >>/etc/pulse/daemon.conf
+	printf "default-fragment-size-msec = 25\n" >>/etc/pulse/daemon.conf
 	pulseaudio --start
 	VOLUME="125%" # default volume boost
 	getSink
@@ -162,9 +164,9 @@ function init() {
 		ARGS="$ARGS -i $instance"
 		echo "[INFO] assigned instance $instance"
 	fi
-	if [ ! -z "$server" ]; then
-		ARGS="$ARGS -h $server"
-		echo "[INFO] assigned server $server"
+	if [ ! -z "$SNAPCAST_SERVER" ]; then
+		ARGS="$ARGS -h $SNAPCAST_SERVER"
+		echo "[INFO] assigned server $SNAPCAST_SERVER"
 	fi
 }
 
