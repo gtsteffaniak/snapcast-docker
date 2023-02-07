@@ -5,9 +5,6 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
 ## Included resources
 
  * [Snapcast Server](snapserver/README.md)
-   * Can be started two ways:
-     * docker run
-     * docker-compose.yml
    * Cleanup job to remove old clients. (see docker-compose.yml)
    * MPD server (for external audio sources. eg: tts, music, notifications)
    * librespot (for spotify integration, provided by default)
@@ -15,19 +12,14 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
    * snapweb controller - for volume control and speaker grouping.
 
  * [Snapcast Client](snapclient/README.md)
-   * Can be started two ways:
-     * via bootstrap.sh
-     * via docker-compose.yml
    * multiple arch files
-     * arm64
-     * arm32
-     * amd64
+     * arm64 / arm32 / amd64
      * or build your own
    * bluetooth support
      * Requires compatible hardware
      * Requires host to be running working bluez firmware (see more on this below)
-   * pulseaudio 15 (using latest gtstef/snapclient)
-   * bluez 5.55    (using latest gtstef/snapclient)
+   * pulseaudio 15.99.1 (using latest gtstef/snapclient)
+   * bluez 5.64    (using latest gtstef/snapclient)
 
 ## About
 
@@ -73,10 +65,8 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
 ```
 
 ## Roadmap
-
- * Remove snapbase and build client/server with alpine linux (for smaller/simpler images)
- * Pulseaudio 16
- * Better arm32/armv7l support. Currently, requires separate image
- * Improved deployment process, likely bash script to name everything properly without manually editing docker-compose
+ * Remove snapbase and build client for simpler images
+ * slimmer alpine snapclient image (WIP)
+ * Using latest pulseaudio or pipewire
  * Add more streams than just spotify/tts/notifications
  * Ability to add streams via env variable to server
