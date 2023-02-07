@@ -9,9 +9,6 @@ information related to running each client instance, view the
 1. Firstly, please install avahi-daemon on host:
    * `sudo apt install avahi-daemon`
 
-* Can be started two ways:
-   * docker run
-   * docker-compose.yml
 * Cleanup job to remove old clients. (see docker-compose.yml)
 * MPD server (for external audio sources. eg: tts, music, notifications)
 * librespot (for spotify integration, provided by default)
@@ -20,3 +17,4 @@ information related to running each client instance, view the
 
 ### How To Use
 
+Please see docker compose to start the server.
