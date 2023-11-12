@@ -1,6 +1,6 @@
 #!/bin/bash
 VOLUME="60%"          # intial bell volume
-: ${AUDIO_LATENCY:=100}  # default bluetooth latency/buffer ms !important   
+: ${AUDIO_LATENCY:=100}  # default bluetooth latency/buffer ms !important
 : ${USE_STEREO:=true} # improves performance on bluetooth when false.
 : ${SNAPCAST_SERVER=server} # default host "server" running with docker-compose
 ARGS=""
@@ -50,7 +50,7 @@ function monitor {
 			echo "[WARN] Host $SNAPCAST_SERVER cannot be connected or resolved."
 		fi
 	done
-	
+
 }
 function getSink() {
 	if [ -z "$DEVICE" ]; then

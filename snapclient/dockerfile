@@ -1,5 +1,5 @@
 FROM gtstef/snapbase as base
-FROM ubuntu:22.04
+FROM ubuntu
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER pulseaudio
 ENV UID 1000
