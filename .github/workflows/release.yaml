@@ -61,7 +61,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           file: ./snapclient/dockerfile.alpine
           push: true
-          tags: ${{ steps.modify-json-alpine.outputs.cleaned_tag_alpine }}
+          tags: ${{ steps.modify-json-alpine.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
   push_snapserver_dockerhub:
     name: Push snapserver version
