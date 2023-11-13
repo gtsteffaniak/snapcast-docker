@@ -6,7 +6,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
   push_snapclient_dockerhub:
-    name: Push latest
+    name: Push snaplclient version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,12 +43,12 @@ jobs:
         with:
           context: ./snapclient/
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          file: ./Dockerfile
+          file: ./dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
   push_snapserver_dockerhub:
-    name: Push latest
+    name: Push snapserver version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -85,7 +85,7 @@ jobs:
         with:
           context: ./snapserver/
           platforms: linux/amd64,linux/arm64
-          file: ./Dockerfile
+          file: ./dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
