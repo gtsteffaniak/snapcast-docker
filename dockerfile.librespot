@@ -10,5 +10,5 @@ ARG LIBRESPOT_VERSION=0.4.2
 RUN cargo install librespot --version "${LIBRESPOT_VERSION}" --no-default-features
 
 # Install snapcast and copy librespot binary from builder stage
-FROM ubuntu:22.10
+FROM ubuntu
 COPY --from=builder /usr/local/cargo/bin/librespot /usr/local/bin/

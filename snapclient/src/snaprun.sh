@@ -79,7 +79,7 @@ function noBluetooth() {
 	printf "\ndefault-fragments = 10\n" >>/etc/pulse/daemon.conf
 	printf "default-fragment-size-msec = 25\n" >>/etc/pulse/daemon.conf
 	pulseaudio --start
-	VOLUME="125%" # default volume boost
+	VOLUME="100%" # default volume boost
 	getSink
 	mv -f .asoundrc.aux .asoundrc
 	start_cmd
