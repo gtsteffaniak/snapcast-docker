@@ -4,28 +4,28 @@ Multi-Room audio bundled into docker with a few extras to make it work a little 
 
 ## Included resources
 
- * [Snapcast Server](snapserver/README.md)
-   * Cleanup job to remove old clients. (see docker-compose.yml)
-   * MPD server (for external audio sources. eg: tts, music, notifications)
-   * librespot (for spotify integration, provided by default)
-     * spotify app on same network should see a "Snapcast" device to play to
-   * snapweb controller - for volume control and speaker grouping.
+* [Snapcast Server](snapserver/README.md)
+  * Cleanup job to remove old clients. (see docker-compose.yml)
+  * MPD server (for external audio sources. eg: tts, music, notifications)
+  * librespot (for spotify integration, provided by default)
+    * spotify app on same network should see a "Snapcast" device to play to
+  * snapweb controller - for volume control and speaker grouping.
 
- * [Snapcast Client](snapclient/README.md)
-   * multiple arch files
-     * arm64 / arm32 / amd64
-     * or build your own
-   * bluetooth support
-     * Requires compatible hardware
-     * Requires host to be running working bluez firmware (see more on this below)
-   * pulseaudio 15.99.1 (using latest gtstef/snapclient)
-   * bluez 5.64    (using latest gtstef/snapclient)
+* [Snapcast Client](snapclient/README.md)
+  * multiple arch files
+    * arm64 / arm32 / amd64
+    * or build your own
+  * bluetooth support
+    * Requires compatible hardware
+    * Requires host to be running working bluez firmware (see more on this below)
+  * pulseaudio 15.99.1 (using latest gtstef/snapclient)
+  * bluez 5.64    (using latest gtstef/snapclient)
 
 ## About
 
- * [Required] Snapserver runs the server
- * Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
- * Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
+* [Required] Snapserver runs the server
+* Snapclient sets up audio node that can output audio to linux device connected to a wired audio output OR bluetooth speaker.
+* Using bluetooth speaker is a single command that includes a docker container which automatically pairs to the bluetooth device and sets up the client and config.
 
 ## How to use
 
@@ -37,8 +37,9 @@ running on the same device.
 Note: You may need to terminate pulseaudio daemon on the host in order to use the container. This can be done via `pulseaudio -k`
 
  Using docker-compose:
-   * Update docker-compose host to match your environment
-   * run `docker-compose up -d` on main directory
+
+* Update docker-compose host to match your environment
+* run `docker-compose up -d` on main directory
 
 ```
 Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
@@ -65,8 +66,9 @@ Note: docker compose can be stopped simultaneously with `docker-compose down` or
 ```
 
 ## Roadmap
- * Remove snapbase and build client for simpler images
- * slimmer alpine snapclient image (WIP)
- * Using latest pulseaudio or pipewire
- * Add more streams than just spotify/tts/notifications
- * Ability to add streams via env variable to server
+
+* Remove snapbase and build client for simpler images
+* slimmer alpine snapclient image (WIP)
+* Using latest pulseaudio or pipewire
+* Add more streams than just spotify/tts/notifications
+* Ability to add streams via env variable to server

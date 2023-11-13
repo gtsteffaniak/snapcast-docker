@@ -1,9 +1,9 @@
 FROM gtstef/librespot:0.4.2 as librespot
 FROM gtstef/snapbase as base
-FROM ubuntu:22.04
+FROM ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y --no-install-recommends \
-    mpd 
+    mpd
 WORKDIR /opt
 COPY --from=librespot /usr/local/bin/librespot /usr/local/bin/
 COPY --from=base /opt/snapcast/server/snapserver /usr/local/bin/
