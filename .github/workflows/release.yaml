@@ -41,9 +41,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./snapclient/
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          file: ./snapclient/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -83,9 +83,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./snapserver/
           platforms: linux/amd64,linux/arm64
-          file: ./snapserver/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
