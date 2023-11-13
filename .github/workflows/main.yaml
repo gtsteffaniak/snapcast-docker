@@ -37,9 +37,18 @@ jobs:
         with:
           context: ./snapclient/
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          file: ./dockerfile
+          file: ./snapclient/dockerfile
           push: true
           tags: 'gtstef/snapclient:latest'
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push alpine
+        uses: docker/build-push-action@v5
+        with:
+          context: ./snapclient/
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          file: ./snapclient/dockerfile.alpine
+          push: true
+          tags: 'gtstef/snapclient:alpine'
           labels: ${{ steps.meta.outputs.labels }}
   push_snapserver_dockerhub:
     name: Push snapserver latest
@@ -72,7 +81,7 @@ jobs:
         with:
           context: ./snapserver/
           platforms: linux/amd64,linux/arm64
-          file: ./dockerfile
+          file: ./snapclient/dockerfile
           push: true
           tags: 'gtstef/snapserver:latest'
           labels: ${{ steps.meta.outputs.labels }}

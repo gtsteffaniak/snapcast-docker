@@ -43,9 +43,25 @@ jobs:
         with:
           context: ./snapclient/
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          file: ./dockerfile
+          file: ./snapclient/dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Strip v from version number
+        id: modify-json
+        run: |
+          JSON="${{ steps.meta.outputs.tags }}"
+          # Use jq to remove 'v' from the version field
+          JSON=$(echo "$JSON" | sed 's/filebrowser:v/filebrowser:/')-alpine
+          echo "cleaned_tag_alpine=$JSON" >> $GITHUB_OUTPUT
+      - name: Build and push alpine
+        uses: docker/build-push-action@v5
+        with:
+          context: ./snapclient/
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          file: ./snapclient/dockerfile.alpine
+          push: true
+          tags: ${{ steps.modify-json.outputs.cleaned_tag_alpine }}
           labels: ${{ steps.meta.outputs.labels }}
   push_snapserver_dockerhub:
     name: Push snapserver version
@@ -85,7 +101,7 @@ jobs:
         with:
           context: ./snapserver/
           platforms: linux/amd64,linux/arm64
-          file: ./dockerfile
+          file: ./snapserver/dockerfile
           push: true
           tags: ${{ steps.modify-json.outputs.cleaned_tag }}
           labels: ${{ steps.meta.outputs.labels }}
