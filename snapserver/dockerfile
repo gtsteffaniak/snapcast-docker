@@ -5,8 +5,8 @@ RUN apk add --no-cache \
         snapcast-server \
         curl \
         mpd
-COPY --from=librespot /usr/local/cargo/bin/librespot /usr/local/bin/
-COPY src .
+COPY --from=librespot ["/usr/local/bin/librespot", "/usr/local/bin/"]"
+COPY ["src", "./"]
 RUN chmod 777 -R /opt/mpd
 RUN chmod +x run.sh
 ENTRYPOINT ["./run.sh"]
