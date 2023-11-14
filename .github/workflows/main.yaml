@@ -81,7 +81,7 @@ jobs:
         with:
           context: ./snapserver/
           platforms: linux/amd64,linux/arm64
-          file: ./snapclient/dockerfile
+          file: ./snapserver/dockerfile
           push: true
           tags: 'gtstef/snapserver:latest'
           labels: ${{ steps.meta.outputs.labels }}
