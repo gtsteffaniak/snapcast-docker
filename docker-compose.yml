@@ -10,8 +10,8 @@ services:
             - chunk_ms=40
             - buffer=1000
             - codec=flac
-        image: 'gtstef/snapserver:0.4.0' # new alpine snapserver based on 0.27
-        restart: "no"
+        image: 'gtstef/snapserver'
+        restart: "unless-stopped"
     cleanupAgent:
         depends_on: [server]
         network_mode: host
@@ -68,7 +68,7 @@ services:
     living_room:
         hostname: living_room
         depends_on: [server]
-        restart: "no"
+        restart: "unless-stopped"
         volumes:
             - '/usr/share/dbus-1:/usr/share/dbus-1'
             - '/var/run/dbus:/var/run/dbus'
@@ -76,13 +76,13 @@ services:
             - /dev/snd
         privileged: true
         environment:
-            - INSTANCE=3  # make sure unique number - no other clients have!
+            - INSTANCE=2  # make sure unique number - no other clients have!
             - SNAPCAST_SERVER=gworker
             - USE_STEREO=true
         healthcheck:
             test: ["CMD", "pgrep", "-f", "snapclient"]
             timeout: 5s
-            retries: 1
+            retries: 3
         image: 'gtstef/snapclient'
         #build:
             #context: ./snapclient
