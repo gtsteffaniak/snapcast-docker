@@ -1,14 +1,18 @@
 # Build librespot with cargo in builder stage
 # Note: currently not compatible with arm32
-
-FROM rust:slim-bullseye AS builder
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt -y install build-essential pkg-config curl
+FROM alpine:edge AS builder
+WORKDIR /app
+RUN apk add --no-cache curl libc-dev curl pkgconfig rust cargo alsa-lib-dev
 
 ARG LIBRESPOT_VERSION=0.4.2
+ENV RUSTFLAGS="-C target-feature=-crt-static"
+RUN curl -sL "https://github.com/librespot-org/librespot/archive/refs/tags/v${LIBRESPOT_VERSION}.tar.gz" --output librespot.tar.gz && \
+  mkdir /app/librespot-src && \
+  tar -zxvf librespot.tar.gz --directory /app/librespot-src --strip-components=1
 
-RUN cargo install librespot --version "${LIBRESPOT_VERSION}" --no-default-features
+RUN cargo install librespot --version "${LIBRESPOT_VERSION}" \
+   --no-default-features --features "alsa-backend"
 
 # Install snapcast and copy librespot binary from builder stage
-FROM ubuntu
-COPY --from=builder /usr/local/cargo/bin/librespot /usr/local/bin/
+FROM alpine
+COPY --from=builder /root/.cargo/bin/librespot /usr/local/bin/
